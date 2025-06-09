@@ -10,9 +10,9 @@ metadata.reflect(bind=engine)
 
 # Accès à la table etudiants
 etudiants= Table('etudiants', metadata, autoload_with=engine, schema='public')
-
+#-------------------------------------------------------------------------------------------------------------------
 # Fonction enregistrement des etudiants
-
+#-------------------------------------------------------------------------------------------------------------------
 def enregistrer_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance):
     try:
         insertion= etudiants.insert().values(
@@ -42,3 +42,15 @@ def enregistrer_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naiss
     except Exception as e :
         print("Erreur lors de l'enregistrement: ",e)
 
+#-----------------------------------------------------------------------------------------------------------------------------
+# Fonction pour afficher les etudiants
+#-----------------------------------------------------------------------------------------------------------------------
+from sqlalchemy import select
+def afficher_etudiant():
+    affichage= select(etudiants).order_by(etudiants.c.id)
+    with engine.connect() as connection:
+        resulat= connection.execute(affichage)
+        return resulat.fetchall()
+#-----------------------------------------------------------------------------------------------------------------------
+# Fonction pour rechercher un etudiant 
+#----------------------------------------------------------------------------------------------------------------------

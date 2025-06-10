@@ -1,3 +1,9 @@
+from sqlalchemy import create_engine, MetaData, Table
+# Connexion à la base de données
+engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
+connection= engine.connect()
+metadata = MetaData()
+metadata.reflect(bind=engine)
 # ENREGISTREMENTS FAITS
 #------------------------------------------------------------------------------------------------------------------
 # ENREGISTREMENT D'ETUDIANTS
@@ -63,4 +69,4 @@ def total_par_etudiant():
             resultat= connection.execute(total)
             return resultat.fetchall()
     except Exception as e:
-        print("Erreur survenue lors de l'affcihae:",e)
+        print("Erreur survenue lors de l'affcihage:",e)

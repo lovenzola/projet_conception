@@ -27,3 +27,18 @@ def enregistrer_paiement(id_etudiant, montant):
         
     except Exception as e :
         print("Erreur lors de l'enregistrement: ",e)
+
+#---------------------------------------------------------------------------------------------------------------------
+# FIXATION DU MAXIMUM DE DE PAIEMENTS PAR ETUDIANT SELON LA FACULTE
+#----------------------------------------------------------------------------------------------------------------------
+def frais_maximal(matricule):
+    prefixe= matricule[:2].lower()
+    if prefixe == "si":
+        return 970
+    elif prefixe in ["ae","th","dr"]:
+        return 915
+    elif prefixe == "md":
+        return 965
+    else: 
+        raise ValueError("Matricule entré non valide")
+    

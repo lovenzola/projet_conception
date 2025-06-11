@@ -9,7 +9,7 @@ paiements= Table('paiements', metadata, autoload_with=engine, schema='public')
 #--------------------------------------------------------------------------------------------------------------------
 # Fonction enregistrement des paiements
 #-------------------------------------------------------------------------------------------------------------------
-def enregistrer_paiement(id_etudiant, montant):
+def save_paiement(id_etudiant, montant):
     try:
         insertion= paiements.insert().values(
            id_etudiant= bindparam('id_etudiant'),

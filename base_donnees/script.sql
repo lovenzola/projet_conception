@@ -108,3 +108,5 @@ CREATE TRIGGER trigger_verif_conception
 AFTER INSERT ON paiements
 FOR EACH ROW
 EXECUTE FUNCTION insertion_preconception();
+/* VIDAGE DE LA TABLE PAIEMENTS POUR DEBUTER AVEC LE TRIGGER*/
+truncate table paiements restart identity cascade

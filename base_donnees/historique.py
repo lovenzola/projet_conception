@@ -15,8 +15,8 @@ def afficher_etudiant():
     try:
         affichage= select(etudiants).order_by(etudiants.c.id)
         with engine.connect() as connection:
-            resulat= connection.execute(affichage)
-            return resulat.fetchall()
+            resultat= connection.execute(affichage)
+            return resultat.fetchall()
     except SQLAlchemyError as e:
         print("Erreur survenue lors de l'affichage: ",e)
 #---------------------------------------------------------------------------------------------------------------------

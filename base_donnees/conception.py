@@ -24,41 +24,6 @@ def verification_conception():
     except SQLAlchemyError as e :
         print("Erreur survenue lors de la verification:",e)
 
-#-------------------------------------------------------------------------------------------------------------------------
-#       FONCTION DE CONCEPTION AVEC REPORTLAB 
-#------------------------------------------------------------------------------------------------------------------------
-from sqlalchemy import delete
-from sqlalchemy.orm import sessionmaker
-from base_donnees.etudiant import etudiants
-from modeles_carte import modele_droit, modele_fase,modele_fasi,modele_med
-Session= sessionmaker(bind=engine)
-session= Session()
-conceptions= session.query(preconceptions).all()
-def concevoir():
-    try:
-        modele = 0
-        requete= select(
-            etudiants.c.matricule,
-            preconceptions.c.id_etudiant
-        ).join(etudiants, etudiants.c.id == preconceptions.c.id_etudiant)
-        with engine.connect() as connection:
-            resultat = connection.execute(requete)
-            for row in resultat:
-                if row.matricule.startswith("si"):
-                    modele = modele_fasi
-                elif row.matricule.startswith("ae"):
-                    modele = modele_fase
-                elif row.matricule.startswith("dr"):
-                    modele = modele_droit
-                elif row.matricule.startswith("md"):
-                    modele = modele_med
-                elif row.matricule.startswith("th"):
-                    return f"modele pour la theologie en cours de conception"
-                else:
-                    print("Matricule entré invalide")
-                    return None
-    except Exception as e:
-        print("Erreur survenue lors de la conception")
 #-----------------------------------------------------------------------------------------------------------------------
 #                    FONCTION POUR VIDER LA TABLE PRECONCEPTION
 #-----------------------------------------------------------------------------------------------------------------------
@@ -69,33 +34,58 @@ def vider_preconception():
         connection.execute(requete)
         connection.commit()
 #-------------------------------------------------------------------------------------------------------------------------
-#                                FONCTION D'ENREGISTREMENT DANS TABLE CONCEPTION
-#-------------------------------------------------------------------------------------------------------------------------
-from sqlalchemy import bindparam
-conception = Table('conception', metadata, autoload_with=engine, schema='public')
-modeles= Table('modeles_cartes',metadata,autoload_with=engine,schema='public')
-def save_conception(etudiant_id,modele_id,chemin_carte):
+#       FONCTION DE CONCEPTION ET ENREGISTREMENT 
+#------------------------------------------------------------------------------------------------------------------------
+from base_donnees.etudiant import etudiants
+from modeles_carte.modeles import modele_droit,modele_fase,modele_fasi,modele_med
+conception= Table("conception",metadata, autoload_with=engine, schema="public")
+modeles= Table("modeles_cartes", metadata, autoload_with=engine, schema="public")
+def concevoir():
     try:
-        if concevoir():
-            insertion = conception.insert().values(
-                etudiant_id= bindparam('etudiant_id'),
-                modele_id= bindparam('modele_id'),
-                chemin_carte= bindparam('chemin_carte')
-            )
-            data= {
-                "etudiant_id" : preconceptions.c.id_etudiant,
-                "modele_id" : modeles.c.id,
-                "chemin_carte": modeles.c.chemin_modele
-            }
+        requete = select(
+            etudiants.c.matricule,
+            etudiants.c.nom,
+            etudiants.c.postnom,
+            etudiants.c.prenom,
+            etudiants.c.sexe,
+            etudiants.c.promotion,
+            etudiants.c.date_naissance,
+            etudiants.c.photo_path,
+            preconceptions.c.id_etudiant
+        ).join(etudiants, etudiants.c.id == preconceptions.c.id_etudiant)
 
-            with engine.connect() as connection:
-                connection.execute(insertion,data)
-                connection.commit()
+        with engine.connect() as connection:
+            resultat = connection.execute(requete)
+            for row in resultat:
+                # Choix du modèle
+                prefix = row.matricule[:2]
+                if prefix == "si":
+                    modele = "modele_fasi"
+                    modele_fasi(row)
+                elif prefix == "ae":
+                    modele = "modele_fase"
+                    modele_fase(row)
+                elif prefix == "dr":
+                    modele = "modele_droit"
+                    modele_droit(row)
+                elif prefix == "md":
+                    modele = "modele_medecine"
+                    modele_med(row)
+                elif prefix == "th":
+                    print("Modèle pour théologie en cours de conception")
+                    continue
+                else:
+                    print(f"Matricule invalide : {row.matricule}")
+                    continue
+
+                # Enregistrement dans la table "conception"
+                connection.execute(
+                    conception.insert().values(
+                        etudiant_id =row.id_etudiant,
+                        nom_modele=modele
+                    )
+                )
             vider_preconception()
-            return True
-        else:
-            print("Aucune conception jusque là")
-            return False
-    except Exception as e: 
-        print("Erreur survenue lors de l'enregistrement")
+    except Exception as e:
+        print(f"Erreur survenue lors de la conception : {e}")
 

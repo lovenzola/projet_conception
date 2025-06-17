@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine, MetaData, Table, bindparam, insert
+from sqlalchemy import create_engine, MetaData, Table,  insert
+from sqlalchemy.exc import SQLAlchemyError
 # Connexion à la base de données
 engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
 connection= engine.connect()
@@ -6,28 +7,6 @@ metadata = MetaData()
 metadata.reflect(bind=engine)
 # Accès à la table paiements
 paiements= Table('paiements', metadata, autoload_with=engine, schema='public')
-#--------------------------------------------------------------------------------------------------------------------
-# Fonction enregistrement des paiements
-#-------------------------------------------------------------------------------------------------------------------
-def save_paiement(id_etudiant, montant):
-    try:
-        insertion= paiements.insert().values(
-           id_etudiant= bindparam('id_etudiant'),
-           montant= bindparam('montant'),
-        )
-        data= {
-            "id_etudiant": id_etudiant,
-            "montant": montant,
-        }
-
-        with engine.connect() as connection:
-            connection.execute(insertion, data)
-            connection.commit()
-            print("Paiement enregistré avec succes!")
-        
-    except Exception as e :
-        print("Erreur lors de l'enregistrement: ",e)
-
 #---------------------------------------------------------------------------------------------------------------------
 # FIXATION DU MAXIMUM DE DE PAIEMENTS PAR ETUDIANT SELON LA FACULTE
 #----------------------------------------------------------------------------------------------------------------------
@@ -41,4 +20,33 @@ def frais_maximal(matricule):
         return 965
     else: 
         raise ValueError("Matricule entré non valide")
+
+#--------------------------------------------------------------------------------------------------------------------
+#                       Fonction enregistrement des paiements
+#-------------------------------------------------------------------------------------------------------------------
+from sqlalchemy import func
+def save_paiement(id_etudiant,matricule, montant):
+    try:
+        plafond= frais_maximal(matricule)
+        with engine.connect() as connection:
+            total= connection.execute(
+                func.sum(paiements.c.montant).select().where(paiements.c.id_etudiant == id_etudiant).scalar() or 0
+            )
+            frais = total + montant
+            if frais> plafond:
+                print("Paiement refuse! Vous etes deja en ordre")
+                return
+            else:
+                reste= plafond - frais
+                insertion= paiements.insert().values(
+                id_etudiant= id_etudiant,
+                montant = montant
+                )
+                connection.execute(insertion)
+                connection.commit()
+                print(f"Paiement enregistré avec succes! Il vous reste : {reste}$ a completer")
+        
+    except SQLAlchemyError as e :
+        print("Erreur lors de l'enregistrement: ",e)
+
     

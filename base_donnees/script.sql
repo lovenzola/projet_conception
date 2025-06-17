@@ -130,4 +130,16 @@ values('modele_fasi','C:\projet\modeles_carte\modele_fasi.py',true),
 ('modele_droit','C:\projet\modeles_carte\modele_droit.py',true),
 ('modele_medecine','C:\projet\modeles_carte\modele_med.py',true),
 ('modele_theologie','',false)
+select *from modeles_cartes
+update modeles_cartes
+set chemin_modele = 'C:\projet\modeles_carte\modeles.py'
+where actif = true
+select *from conception
+select *from reconception
 
+alter table conception
+drop column modele_id,
+drop column chemin_carte
+select *from reconception
+alter table conception 
+add column nom_modele text

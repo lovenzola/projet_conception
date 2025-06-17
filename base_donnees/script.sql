@@ -110,3 +110,24 @@ FOR EACH ROW
 EXECUTE FUNCTION insertion_preconception();
 /* VIDAGE DE LA TABLE PAIEMENTS POUR DEBUTER AVEC LE TRIGGER*/
 truncate table paiements restart identity cascade
+
+/* Ajout d'une colonne pour les images des etudiants*/
+alter table etudiants
+add column photo_path text
+/* Insertion des images pour chaque etudiant*/
+update etudiants
+set photo_path = case
+when sexe = 'f' then  'C:\projet\multimedia\icone_femme_black.jpg'
+when sexe = 'm' then  'C:\projet\multimedia\icone_homme_black.jpg'
+end
+where photo_path is null 
+
+SELECT *FROM ETUDIANTS
+/* Insertion des valeurs dans modeles_cartes */
+insert into modeles_cartes (nom_modele,chemin_modele,actif)
+values('modele_fasi','C:\projet\modeles_carte\modele_fasi.py',true),
+('modele_fase','C:\projet\modeles_carte\modele_fase.py',true),
+('modele_droit','C:\projet\modeles_carte\modele_droit.py',true),
+('modele_medecine','C:\projet\modeles_carte\modele_med.py',true),
+('modele_theologie','',false)
+

@@ -52,6 +52,4 @@ def preconception ():
             print("Trigger et fonction preconception executes avec succes")
     except Exception as e:
         print("Erreur survenue lors de la creation du trigger:", e)
-
-
-    
+from sqlalchemy import delete

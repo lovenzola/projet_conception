@@ -4,7 +4,7 @@ engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/co
 connection= engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
-from base_donnees.etudiant import enregistrer_etudiant
+from base_donnees.etudiant import save_etudiant
 
 #enregistrer_etudiant(
    # nom="kitenge",
@@ -16,23 +16,23 @@ from base_donnees.etudiant import enregistrer_etudiant
   #  date_naissance="2006-08-05"
 #) 
 
-from base_donnees.paiement import enregistrer_paiement
+from base_donnees.paiement import save_paiement
 ##enregistrer_paiement(
    # id_etudiant=5,
    # montant=870
 #)
 
-from base_donnees.etudiant import afficher_etudiant
+from base_donnees.historique import afficher_etudiant
 
 selection = afficher_etudiant()
 print (selection)
 
-from base_donnees.historique import affichage_paiement, total_par_etudiant
+from base_donnees.historique import affichage_paiement, afficher_paiement_etudiant
 
 affiche= affichage_paiement()
 print(affiche)
 
-totaux= total_par_etudiant()
+totaux= afficher_paiement_etudiant()
 print(totaux)
 
 
@@ -55,3 +55,18 @@ with engine.connect() as connection:
          print("Montant paye superieur")
       else:
          print("bof")
+with engine.connect() as connection:
+   requete= select(etudiants)
+   liste= connection.execute(requete)
+   #for etudiant in liste:
+    #  print(f"{etudiant.nom}: - {etudiant.matricule}")
+
+   for etudiant in liste:
+      data= {
+         "nom" : etudiant.nom.title(),
+         "postnom" : etudiant.postnom.title(),
+         "prenom" : etudiant.prenom.title(),
+         "matricule" : etudiant.matricule.upper(),
+         "promotion" : etudiant.promotion.upper(),
+      }
+      print(data)

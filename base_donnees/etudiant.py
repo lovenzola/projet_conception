@@ -13,7 +13,7 @@ etudiants= Table('etudiants', metadata, autoload_with=engine, schema='public')
 #-------------------------------------------------------------------------------------------------------------------
 # Fonction enregistrement des etudiants
 #-------------------------------------------------------------------------------------------------------------------
-def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance):
+def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance,photo_path):
     try:
         insertion= etudiants.insert().values(
             nom= bindparam('nom'),
@@ -22,7 +22,9 @@ def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance):
             matricule= bindparam('matricule'),
             promotion= bindparam('promotion'),
             sexe= bindparam('sexe'),
-            date_naissance= bindparam('date_naissance')
+            date_naissance= bindparam('date_naissance'),
+            photo_path = bindparam('photo_path')
+
         )
         data= {
             "nom":nom,
@@ -31,7 +33,8 @@ def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance):
             "matricule": matricule,
             "promotion": promotion,
             "sexe": sexe,
-            "date_naissance": date_naissance
+            "date_naissance": date_naissance,
+            "photo_path": photo_path
         }
 
         with engine.connect() as connection:

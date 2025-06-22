@@ -20,7 +20,7 @@ def generer_carte():
     texte.setFillColor(black)
     texte.textLine("Nom : Nzola")
     texte.textLine("Post-nom : Samba")
-    texte.textLine("Prenom : Love")
+    texte.textLine("Prenom: Joyce")
     texte.textLine("Matricule : SI013724")
     texte.textLine("Promotion : L1 LMD FASI")
     texte.textLine("Adresse : Bandal,5168")

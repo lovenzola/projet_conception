@@ -1,3 +1,4 @@
+from interface.connexion import connexion
 from PyQt6.QtWidgets import (
     QProgressBar, QLabel, QPushButton, QVBoxLayout, QStatusBar,QWidget, QApplication, QMainWindow
 )
@@ -14,7 +15,7 @@ style= ("""
                 }
                 QProgressBar::chunk{
                     border-radius: 5px;
-                    background-color: #272a3f;
+                    background-color: #12131A;
                 }
                 QLabel#titre{
                     font-style: italic;
@@ -31,7 +32,7 @@ style= ("""
                     font-size : 20px;
                     max-width: 120px;
                     height: 30px;
-                    color: #272a3f;
+                    color: #FAFAFA;
                     
                
                 }
@@ -43,7 +44,7 @@ class accueil(QMainWindow):
         super().__init__()
         self.setMinimumSize(1000,600)
         self.setWindowTitle("CARD GENERATOR")
-        self.setStyleSheet("background-color: #CFD8DC; font-family: sans serif;")
+        self.setStyleSheet("background-color:  #1A1C2C; font-family: sans serif;")
 #----------------------------------------------------------------------------------------------------------------------
         self.accueil= QWidget()
         self.accueil.setStyleSheet(style)
@@ -67,7 +68,7 @@ class accueil(QMainWindow):
         self.bouton.hide()
 #----------------------------------------------------------------------------------------------------------------------
         self.message= QLabel(" \U0001F501 Chargement de l'application")
-        self.message.setStyleSheet("color: #272a3f;font-size: 13px; padding: 10px;")
+        self.message.setStyleSheet("color: #E0F7FA;font-size: 13px; padding: 10px;")
         self.setStatusBar(QStatusBar())
         self.statusBar().addWidget(self.message)
         self.statusBar().showMessage("Chargement de l'application")
@@ -97,12 +98,10 @@ class accueil(QMainWindow):
             self.statusBar().setHidden(True)
 #----------------------------------------------------------------------------------------------------------------------
     def connexion (self):
-        pass
-app= QApplication(sys.argv)
-entree= accueil()
-entree.show()
+        self.connecter= connexion()
+        self.connecter.show()
+        self.close()
 
-sys.exit(app.exec())
 
 
         

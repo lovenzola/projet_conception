@@ -33,8 +33,7 @@ def save_paiement(id_etudiant,matricule, montant):
             total= connection.execute(requete).scalar() or 0
             frais = float(total) + montant
             if frais> plafond:
-                print(f"⛔ Vous avez déjà atteint le montant requis.")
-                return
+                return f"⛔ Vous avez déjà atteint le montant requis."
             insertion= paiements.insert().values(
                 id_etudiant= id_etudiant,
                 montant = montant

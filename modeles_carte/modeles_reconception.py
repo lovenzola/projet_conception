@@ -2,7 +2,7 @@ from datetime import date
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import black, whitesmoke, honeydew, aliceblue, lightsteelblue, thistle, oldlace
 def modele_carte(row, fond, couleur_nom):
-    nom_fichier = f"C:\projet\cartes\carte_conception\Carte_{row.nom.title()}_{row.matricule.upper()}.pdf"
+    nom_fichier = f"C:\projet\cartes\carte_reconception\Carte_{row.nom.title()}_{row.matricule.upper()}.pdf"
     carte = canvas.Canvas(nom_fichier, pagesize=(253, 143))
     
     carte.setFillColor(whitesmoke)

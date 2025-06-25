@@ -1,5 +1,4 @@
 from base_donnees.historique import affichage_paiement
-from base_donnees.preconception import preconception
 from base_donnees.paiement import save_paiement
 from PyQt6.QtWidgets import (
     QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,

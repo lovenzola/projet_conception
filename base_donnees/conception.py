@@ -16,10 +16,8 @@ def verification_conception():
             resultat= connection.execute(comptage)
             nbre_etudiant= resultat.scalar()
             if nbre_etudiant >= 10:
-                print("Nombre de paiements atteint. Voulez-vous concevoir?")
                 return True
             else:
-                print("Nombre de paiements inferieur à 10. Pas de conception")
                 return False
     except SQLAlchemyError as e :
         print("Erreur survenue lors de la verification:",e)
@@ -85,6 +83,7 @@ def concevoir():
                         nom_modele=modele
                     )
                 )
+                connection.commit()
             vider_preconception()
     except Exception as e:
         print(f"Erreur survenue lors de la conception : {e}")

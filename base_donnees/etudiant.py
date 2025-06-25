@@ -29,8 +29,7 @@ def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance,ph
         with engine.connect() as connection:
             connection.execute(insertion)
             connection.commit()
-            print(f"Etudiant {nom} enregistré avec succes!")
-        
+            print(f"Etudiant {nom} enregistré avec succès")
     except SQLAlchemyError as e :
         print("Erreur lors de l'enregistrement: ",e)
 

@@ -1,3 +1,7 @@
+
+#------------------------------------------------------------------------------------------------------------------
+# Fonction du remplissage de la table preconception avec le TRIGGER
+#-----------------------------------------------------------------------------------------------------------------
 from sqlalchemy import create_engine, MetaData, Table, text, select
 # Connexion à la base de données
 engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
@@ -33,7 +37,7 @@ def preconception ():
                 IF NOT EXISTS (
                     SELECT 1 FROM preconception WHERE id_etudiant = NEW.id_etudiant
                 ) THEN
-                INSERT INTO preconception (id_etudiant, date_conception)
+                INSERT INTO preconception (id_etudiant, date)
                 VALUES (NEW.id_etudiant, CURRENT_DATE);
                 END IF;
             END IF;
@@ -41,7 +45,7 @@ def preconception ():
         END;
         $$ LANGUAGE plpgsql;
 
-        CREATE TRIGGER trigger_verif_conception
+        CREATE TRIGGER OR REPLACE trigger_verif_conception
         AFTER INSERT ON paiements
         FOR EACH ROW
         EXECUTE FUNCTION insertion_preconception();
@@ -52,4 +56,3 @@ def preconception ():
             print("Trigger et fonction preconception executes avec succes")
     except Exception as e:
         print("Erreur survenue lors de la creation du trigger:", e)
-from sqlalchemy import delete

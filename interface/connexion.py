@@ -1,8 +1,10 @@
+from interface.principale import Principale
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QLineEdit, QFormLayout, QFrame, QMainWindow, QApplication, QVBoxLayout, QMessageBox
 )
 from PyQt6.QtCore import Qt
 import sys
+
 #------------------------------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -10,7 +12,7 @@ class connexion(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Authentification")
-        self.setMinimumSize(800,400)
+        self.resize(800,400)
         self.setStyleSheet("""
             font-size: 16px;
             font-family: sans serif;
@@ -53,7 +55,9 @@ class connexion(QMainWindow):
         nom= self.nom.text()
         code= self.code.text()
         if nom in self.infos and self.infos[nom] == code:
-            QMessageBox.information(self, "connexion","Connexion reussie!")
+            self.connecter= Principale()
+            self.connecter.show()
+            self.close()
         else:
             QMessageBox.warning(self, "alerte","Nom ou Mot de passe incorrect!")
 

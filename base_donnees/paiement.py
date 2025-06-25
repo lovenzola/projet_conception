@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, MetaData, Table,  insert
+from sqlalchemy import create_engine, MetaData, Table,  insert, select
 from sqlalchemy.exc import SQLAlchemyError
 # Connexion à la base de données
 engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
@@ -13,11 +13,11 @@ paiements= Table('paiements', metadata, autoload_with=engine, schema='public')
 def frais_maximal(matricule):
     prefixe= matricule[:2].lower()
     if prefixe == "si":
-        return 970
+        return float(970)
     elif prefixe in ["ae","th","dr"]:
-        return 915
+        return float(915)
     elif prefixe == "md":
-        return 965
+        return float(965)
     else: 
         raise ValueError("Matricule entré non valide")
 
@@ -29,22 +29,23 @@ def save_paiement(id_etudiant,matricule, montant):
     try:
         plafond= frais_maximal(matricule)
         with engine.connect() as connection:
-            total= connection.execute(
-                func.sum(paiements.c.montant).select().where(paiements.c.id_etudiant == id_etudiant).scalar() or 0
-            )
-            frais = total + montant
+            requete= select(func.sum(paiements.c.montant)).where(paiements.c.id_etudiant == id_etudiant)
+            total= connection.execute(requete).scalar() or 0
+            frais = float(total) + montant
             if frais> plafond:
-                print("Paiement refuse! Vous etes deja en ordre")
+                print(f"⛔ Vous avez déjà atteint le montant requis.")
                 return
-            else:
-                reste= plafond - frais
-                insertion= paiements.insert().values(
+            insertion= paiements.insert().values(
                 id_etudiant= id_etudiant,
                 montant = montant
                 )
-                connection.execute(insertion)
-                connection.commit()
-                print(f"Paiement enregistré avec succes! Il vous reste : {reste}$ a completer")
+            connection.execute(insertion)
+            connection.commit()
+            if frais == plafond:
+                return f"💯 Montant requis atteint! Vous êtes à présent elligible à une carte"
+            else:
+                reste= float(plafond - frais)
+                return f"✅ Paiement enregistré avec succès! Il vous reste : {reste}$ à completer"
         
     except SQLAlchemyError as e :
         print("Erreur lors de l'enregistrement: ",e)

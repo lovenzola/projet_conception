@@ -68,20 +68,43 @@ def afficher_paiement_etudiant():
             return resultat.fetchall()
     except SQLAlchemyError as e:
         print("Erreur survenue lors de l'affcihage:",e)
+
+#------------------------------------------------------------------------------------------------------------------
+#                                   AFFICHAGE TABLE PRECONCEPTION
+#------------------------------------------------------------------------------------------------------------------
+from base_donnees.conception import preconceptions
+def afficher_preconception():
+    try:
+        requete= select(
+            preconceptions.c.id,
+            etudiants.c.nom,
+            etudiants.c.postnom,
+            preconceptions.c.id_etudiant,
+            preconceptions.c.statut,
+            preconceptions.c.date,
+        ).join(etudiants, etudiants.c.id == preconceptions.c.id_etudiant).order_by(preconceptions.c.date)
+
+        with engine.connect() as connection:
+            resultat= connection.execute(requete)
+            return resultat.fetchall()
+    except SQLAlchemyError as e:
+        print("Erreur lors de l'execution de la requete")
 #--------------------------------------------------------------------------------------------------------------------
 #                                           CONCEPTIONS FAITES 
 #---------------------------------------------------------------------------------------------------------------------
 from base_donnees.conception import conception
 def afficher_conception():
     try:
+        modele= Table('modeles_cartes',metadata, autoload_with=engine, schema='public')
         requete= select(
             conception.c.id,
             conception.c.etudiant_id,
             etudiants.c.nom,
             etudiants.c.postnom,
-            conception.c.modele_id,
+            conception.c.nom_modele,
             conception.c.date_conception
             ).join(etudiants, conception.c.etudiant_id == etudiants.c.id                       
+            ).join(modele, conception.c.nom_modele == modele.c.nom_modele
             ).order_by(conception.c.date_conception)
         with engine.connect () as connection:
             resultat= connection.execute(requete)

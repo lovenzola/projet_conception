@@ -42,7 +42,7 @@ class accueil(QMainWindow):
 #-----------------------------------------------------------------------------------------------------------------------
     def __init__(self):
         super().__init__()
-        self.setMinimumSize(1000,600)
+        self.resize(1000,600)
         self.setWindowTitle("CARD GENERATOR")
         self.setStyleSheet("background-color:  #1A1C2C; font-family: sans serif;")
 #----------------------------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ class accueil(QMainWindow):
 #----------------------------------------------------------------------------------------------------------------------
     # Pour que la progression commence quand l'ecran s'ouvre
     def showEvent(self, event):
-        self.timer.start(200)
+        self.timer.start(150)
         return super().showEvent(event)
 #----------------------------------------------------------------------------------------------------------------------
     def affichage(self):

@@ -1,10 +1,13 @@
+from interface.fonctions_secon import rechercher_proxy
+from base_donnees.historique import supprimer_paiement
+from base_donnees.paiement import etudiant_existe
 from base_donnees.historique import affichage_paiement
 from base_donnees.paiement import save_paiement
 from PyQt6.QtWidgets import (
     QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,
     QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QDoubleSpinBox
 )
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 import sys
@@ -27,16 +30,14 @@ class Onglet_paiement (QWidget):
         layout_enregistrement= QFormLayout()
         self.id_etudiant= QLineEdit()
         self.id_etudiant.setPlaceholderText("Nombre uniquement")
-        self.matricule= QLineEdit()
-        self.montant= QDoubleSpinBox()
+        self.montant=QDoubleSpinBox()
         self.montant.setMinimum(5)
         self.montant.setMaximum(1000)
         self.montant.setPrefix("$")
-        self.montant.setSingleStep(10)
+        self.montant.setSingleStep(5)
         self.btn_save= QPushButton("Enregistrer")
         self.btn_save.clicked.connect(self.enregistrer)
         layout_enregistrement.addRow("ID ETUDIANT",self.id_etudiant)
-        layout_enregistrement.addRow("MATRICULE :",self.matricule)
         layout_enregistrement.addRow("Montant:",self.montant)
         
         layout_enregistrement.addWidget(self.btn_save)
@@ -50,12 +51,17 @@ class Onglet_paiement (QWidget):
         self.menu= QWidget()
         menu = QHBoxLayout()
         self.champ_recherche= QLineEdit()
-        self.btn_search= QPushButton("🔍 Rechercher")
-        #self.btn_search.clicked.connect(self.rechercher)
+        self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
+        self.champ_suppression= QLineEdit()
+        self.champ_suppression.setPlaceholderText("Entrez l'ID")
+        self.btn_supprimer= QPushButton("Supprimer")
+        self.btn_supprimer.clicked.connect(self.delete)
         self.filtrer = QComboBox()
-        self.filtrer.addItems(["Filtrer...", "Par étudiant","Ancien ➡️ Récent ","Récent ➡️ Ancien "])
+        self.filtrer.addItems(["Filtrer...","Ancien ➡️ Récent ","Récent ➡️ Ancien "])
+        self.filtrer.currentIndexChanged.connect(self.trier_table)
         menu.addWidget(self.champ_recherche, 2)
-        menu.addWidget(self.btn_search,2)
+        menu.addWidget(self.champ_suppression,1)
+        menu.addWidget(self.btn_supprimer,1)
         menu.addWidget(self.filtrer,1)
         self.menu.setLayout(menu)
 
@@ -80,24 +86,32 @@ class Onglet_paiement (QWidget):
 #------------------------------------------------------------------------------------------------------------------------
     def renitialiser(self):
         self.id_etudiant.clear()
-        self.montant.clear()
-        self.matricule.clear()
+        self.montant.setValue(0)
 #-----------------------------------------------------------------------------------------------------------------------
-    def enregistrer(self):
-        id_etudiant= self.id_etudiant.text()
-        matricule= self.matricule.text()
-        montant=self.montant.value()
-        message= save_paiement(
-            id_etudiant=id_etudiant,
-            matricule=matricule.lower(),
-            montant=montant
+    
 
-        )
-        QMessageBox.information(self,"SUCCES", message)
+    def enregistrer(self):
+        id_etudiant = self.id_etudiant.text().strip()
+    
+        if not id_etudiant.isdigit():
+            QMessageBox.warning(self, "Erreur", "⚠ L’ID doit être un nombre.")
+            return
+    
+        if not etudiant_existe(int(id_etudiant)):
+            QMessageBox.warning(self, "Erreur", "❌ Étudiant introuvable.")
+            return
+
+        montant = self.montant.value()
+
+        message = save_paiement(
+            id_etudiant=id_etudiant,
+            montant=montant
+            )
+        QMessageBox.information(self, "Succès", message)
         self.renitialiser()
 #----------------------------------------------------------------------------------------------------------------------
     def afficher(self):
-        en_tete= ["ID","Nom","Matricule","ID ETUDIANT","Montant","Date Paiement"]
+        en_tete= ["ID","Nom","Promotion","ID ETUDIANT","Montant","Date Paiement"]
         requete= affichage_paiement()
         modele= QStandardItemModel(len(requete),len(en_tete))
         modele.setHorizontalHeaderLabels(en_tete)
@@ -108,4 +122,39 @@ class Onglet_paiement (QWidget):
                 modele.setItem(row_index,col_index,item)
         self.table.setModel(modele)
         self.table.resizeColumnsToContents()
+
+        rechercher_proxy(self.table, self.champ_recherche,colonne=-1)
+
+
 #-----------------------------------------------------------------------------------------------------------------
+    def delete(self):
+        id_texte= self.champ_suppression.text()
+        if id_texte:
+            if not id_texte.isdigit():
+                QMessageBox.warning(self,"Erreur","Entrez un nombre!")
+                return
+            reponse= QMessageBox.question(
+                self,"Suppression","Voulez-vous vraiment supprimer ce paiement?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reponse== QMessageBox.StandardButton.Yes:
+                action= supprimer_paiement(id_texte)
+                QMessageBox.information(self,"Succès",action)
+                self.champ_suppression.clear()
+            else:
+                return
+    def trier_table(self):
+        modele= self.table.model()
+        if not isinstance(modele, QSortFilterProxyModel):
+            return
+    
+
+        choix= self.filtrer.currentText()
+
+        if choix == "Ancien ➡️ Recent":
+            modele.sort(5,Qt.SortOrder.AscendingOrder)
+        elif choix == "Recent ➡️ Ancien":
+            modele.sort(5,Qt.SortOrder.DescendingOrder)
+        
+    
+

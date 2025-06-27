@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine, MetaData, Table
+
+from sqlalchemy import create_engine, MetaData, Table, delete
 from sqlalchemy.exc import SQLAlchemyError
 # Connexion à la base de données
 engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
@@ -32,7 +33,7 @@ def affichage_paiement():
         liste_total= select(
             paiements.c.id,
             etudiants.c.nom,
-            etudiants.c.matricule,
+            etudiants.c.promotion,
             paiements.c.id_etudiant,
             paiements.c.montant,
             paiements.c.date_paiement
@@ -122,6 +123,7 @@ def afficher_reconception():
             reconception.c.etudiant_id,
             etudiants.c.nom,
             etudiants.c.postnom,
+            reconception.c.tentative,
             reconception.c.date_reconception
             ).join(etudiants, reconception.c.etudiant_id == etudiants.c.id                        
             ).order_by(reconception.c.date_reconception)
@@ -130,3 +132,31 @@ def afficher_reconception():
             return resultat.fetchall()
     except SQLAlchemyError as e:
         print("Erreur survenue lors de l'affichage: ",e )
+
+def supprimer_etudiant(id_etudiant):
+    
+    requete_existe= select(etudiants).where(etudiants.c.id == id_etudiant)
+    with engine.connect() as connection:
+        resultat= connection.execute(requete_existe).scalar()
+        if resultat:
+            requete= delete(etudiants).where(etudiants.c.id == id_etudiant)
+            connection.execute(requete)
+            connection.commit()
+            return f'ID {id_etudiant} supprimé avec succès'
+        else:
+            return f'ID inexistant'
+
+def supprimer_paiement(id_etudiant):
+    requete_existe= select(paiements).where(paiements.c.id_etudiant == id_etudiant)
+    with engine.connect() as connection:
+        resultat= connection.execute(requete_existe).scalar()
+        if resultat:
+            requete= delete(paiements).where(paiements.c.id_etudiant == id_etudiant)
+            connection.execute(requete)
+            connection.commit()
+            return f'ID {id_etudiant} supprimé avec succès'
+        else:
+            return f'ID inexistant'
+    
+        
+

@@ -1,10 +1,12 @@
+from interface.fonctions_secon import rechercher_proxy
+from base_donnees.historique import supprimer_etudiant
 from base_donnees.historique import afficher_etudiant
 from base_donnees.etudiant import save_etudiant
 from PyQt6.QtWidgets import (
     QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,
     QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QDoubleSpinBox
 )
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 class Onglet_etudiant(QWidget):
@@ -58,13 +60,17 @@ class Onglet_etudiant(QWidget):
         self.menu= QWidget()
         menu = QHBoxLayout()
         self.champ_recherche= QLineEdit()
-        self.champ_recherche.setPlaceholderText("")
-        self.btn_search= QPushButton("🔍 Rechercher")
-        #self.btn_search.clicked.connect(self.rechercher)
+        self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
+        self.champ_suppression= QLineEdit()
+        self.champ_suppression.setPlaceholderText("Entrez l'ID")
+        self.btn_delete=QPushButton("Supprimer")
+        self.btn_delete.clicked.connect(self.delete)
         self.filtrer = QComboBox()
-        self.filtrer.addItems(["Filtrer...", "Promotion","A ➡️ Z", "Z ➡️ A"])
+        self.filtrer.addItems(["Filtrer...", "A ➡️ Z", "Z ➡️ A"])
+        self.filtrer.currentIndexChanged.connect(self.trier_table)
         menu.addWidget(self.champ_recherche, 2)
-        menu.addWidget(self.btn_search,2)
+        menu.addWidget(self.champ_suppression,1)
+        menu.addWidget(self.btn_delete,1)
         menu.addWidget(self.filtrer,1)
         self.menu.setLayout(menu)
 
@@ -129,9 +135,44 @@ class Onglet_etudiant(QWidget):
                 modele.setItem(row_index,col_index,item)
         self.table.setModel(modele)
         self.table.resizeRowsToContents()
+
+        rechercher_proxy(self.table, self.champ_recherche, colonne=-1)
 #--------------------------------------------------------------------------------------------------------------------
     def controle_onglet(self,index):
         self.stack.setCurrentIndex(index)
         if index == 1:
             self.afficher()            
 #-----------------------------------------------------------------------------------------------------------------------
+
+    def delete(self):
+        id_texte= self.champ_suppression.text()
+        if id_texte:
+            if not id_texte.isdigit():
+                QMessageBox.warning(self,"Erreur","Entrez un nombre!")
+                return
+            reponse= QMessageBox.question(
+                self,"Suppression","Voulez-vous vraiment supprimer ce paiement?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reponse== QMessageBox.StandardButton.Yes:
+                action= supprimer_etudiant(id_texte)
+                QMessageBox.information(self,"Succès",action)
+                self.champ_suppression.clear()
+            else:
+                return
+
+
+    def trier_table(self):
+        modele= self.table.model()
+        if not isinstance(modele, QSortFilterProxyModel):
+            return
+    
+
+        choix= self.filtrer.currentText()
+
+        if choix == "A ➡️ Z":
+            modele.sort(1,Qt.SortOrder.AscendingOrder)
+        elif choix == "Z ➡️ A":
+            modele.sort(1,Qt.SortOrder.DescendingOrder)
+        
+    

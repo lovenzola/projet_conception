@@ -1,4 +1,9 @@
+import os
+import subprocess
+import platform
+from interface.fonctions_secon import rechercher_proxy
 from base_donnees.reconception import reconcevoir
+from base_donnees.reconception import verifier_tentative
 from base_donnees.reconception import verification_reconception
 from base_donnees.conception import verification_conception
 from base_donnees.conception import concevoir
@@ -29,20 +34,20 @@ class Onglet_cartes(QWidget):
         self.stack_global = QStackedWidget()
 
         # ---------- PAGE PRECONCEPTION ----------
-        self.page_preconception = QWidget()
-        layout_precon = QVBoxLayout()
+        self.page_preconception= QWidget()
+        layout_precon= QVBoxLayout()
         self.menu_precon = QWidget()
         menu_layout = QHBoxLayout()
         self.champ_recherche = QLineEdit()
-        self.btn_search = QPushButton("🔍 Rechercher")
-        menu_layout.addWidget(self.champ_recherche, 3)
-        menu_layout.addWidget(self.btn_search, 1)
+        self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
+        menu_layout.addWidget(self.champ_recherche)
         self.menu_precon.setLayout(menu_layout)
-        self.table = QTableView()
-        layout_precon.addWidget(self.menu_precon)
-        layout_precon.addWidget(self.table)
-        self.page_preconception.setLayout(layout_precon)
 
+        self.table_preconception= QTableView()
+
+        layout_precon.addWidget(self.menu_precon)
+        layout_precon.addWidget(self.table_preconception)
+        self.page_preconception.setLayout(layout_precon)
         # ---------- PAGE CONCEPTION AVEC STACK_CARTES ----------
         self.page_conception = QWidget()
         layout_conception = QVBoxLayout()
@@ -80,18 +85,22 @@ class Onglet_cartes(QWidget):
 
         boutons_reconception = QHBoxLayout()
         btn_table_reconception= QPushButton("Afficher la table")
+        btn_table_dossier= QPushButton("Dossier Cartes")
         btn_espace_reconception= QPushButton("Espace Reconception")
 
         boutons_reconception.addWidget(btn_table_reconception)
+        boutons_reconception.addWidget(btn_table_dossier)
         boutons_reconception.addWidget(btn_espace_reconception)
         self.page_reconception.setLayout(layout_reconc)
 
         self.stack_reconception= QStackedWidget()
         self.stack_reconception.addWidget(self.page_reconception_carte())
+        self.stack_reconception.addWidget(self.page_dossier_reconception())
         self.stack_reconception.addWidget(self.test_reconception())
         
         btn_table_reconception.clicked.connect(lambda: self.stack_reconception.setCurrentIndex(0))
-        btn_espace_reconception.clicked.connect(lambda: self.stack_reconception.setCurrentIndex(1))
+        btn_table_dossier.clicked.connect(lambda: self.stack_reconception.setCurrentIndex(1))
+        btn_espace_reconception.clicked.connect(lambda: self.stack_reconception.setCurrentIndex(2))
         
         layout_reconc.addLayout(boutons_reconception)
         layout_reconc.addWidget(self.stack_reconception)
@@ -107,12 +116,20 @@ class Onglet_cartes(QWidget):
         self.setLayout(layout_principal)
 
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
+      
 
     def controle_onglet(self, index):
         self.stack_global.setCurrentIndex(index)
         if index == 0:
             self.affichage_preconception()
-
+        elif index == 1:
+            self.stack_cartes.removeWidget(self.stack_cartes.widget(0))
+            self.stack_cartes.insertWidget(0, self.page_affichage_cartes())
+            self.stack_cartes.setCurrentIndex(0)
+        elif index == 2:
+            self.stack_reconception.removeWidget(self.stack_reconception.widget(0))
+            self.stack_reconception.insertWidget(0, self.page_reconception_carte())
+            self.stack_reconception.setCurrentIndex(0)
     def affichage_preconception(self):
         entetes = ["ID","Nom", "Post-nom", "ID ETUDIANT", "Statut", "Date"]
         requete = afficher_preconception()
@@ -121,12 +138,24 @@ class Onglet_cartes(QWidget):
         for row, ligne in enumerate(requete):
             for col, val in enumerate(ligne):
                 modele.setItem(row, col, QStandardItem(str(val)))
-        self.table.setModel(modele)
-        self.table.resizeColumnsToContents()
+        self.table_preconception.setModel(modele)
+        self.table_preconception.resizeColumnsToContents()
+
+        rechercher_proxy(self.table_preconception,self.champ_recherche, colonne=-1)
 
     def page_affichage_cartes(self):
         page = QWidget()
         layout = QVBoxLayout()
+        menu= QWidget()
+        menu_con = QHBoxLayout()
+        self.searcher = QLineEdit()
+        self.searcher.setPlaceholderText("🔍 Tapez votre recherche")
+        menu_con.addWidget(self.searcher)
+
+        menu.setLayout(menu_con)
+        self.table = QTableView()
+        layout.addWidget(menu)
+        page.setLayout(layout)
         table = QTableView()
 
         entetes = ["ID","ID ETUDIANT", "Nom", "Post-nom","Nom Modèle", "Date"]
@@ -138,7 +167,8 @@ class Onglet_cartes(QWidget):
                 modele.setItem(row, col, QStandardItem(str(val)))
         table.setModel(modele)
         table.resizeColumnsToContents()
-
+        rechercher_proxy(table,self.searcher, colonne=-1)
+        layout.addWidget(menu)
         layout.addWidget(table)
         page.setLayout(layout)
         return page
@@ -146,7 +176,9 @@ class Onglet_cartes(QWidget):
     def page_dossier(self):
         page = QWidget()
         layout = QVBoxLayout()
-        layout.addWidget(QPushButton("📂 Ouvrir le dossier"))
+        ouvrir_dossier= QPushButton("📂 Ouvrir le dossier")
+        ouvrir_dossier.clicked.connect(lambda: self.afficher_dossier("C:\projet\cartes\carte_conception"))
+        layout.addWidget(ouvrir_dossier)
         page.setLayout(layout)
         return page
 
@@ -162,19 +194,34 @@ class Onglet_cartes(QWidget):
             if message ==QMessageBox.StandardButton.Yes:
                 concevoir()
                 QMessageBox.information(self,"Succès","Cartes conçues avec succès ✅")
+                self.stack_cartes.removeWidget(self.stack_cartes.widget(0))
+                self.stack_cartes.insertWidget(0,self.page_affichage_cartes())
+                self.stack_cartes.setCurrentIndex(0)
             else:
                 QMessageBox.information(self,"Annuler","⛔ La conception a été annulée")
         else:
-            QMessageBox.warning(self, "Erreur", "❌ Nombre d'étdiants pas encore atteint!")
+            QMessageBox.warning(self, "Erreur", "❌ Nombre d'étudiants pas encore atteint!")
         page.setLayout(layout)
         return page
 
     def page_reconception_carte(self):
         page = QWidget()
         layout = QVBoxLayout()
+        menu= QWidget()
+        menu_recon = QHBoxLayout()
+        self.recherche = QLineEdit()
+        self.recherche .setPlaceholderText("🔍 Tapez votre recherche")
+        menu_recon.addWidget(self.recherche )
+       
+
+        menu.setLayout(menu_recon)
+        self.table = QTableView()
+        layout.addWidget(menu)
+        page.setLayout(layout)
+    
         table = QTableView()
 
-        entetes = ["ID","ID ETUDIANT", "Nom", "Post-nom","Nom Modèle", "Date"]
+        entetes = ["ID","ID ETUDIANT", "Nom", "Post-nom","Tentative", "Date"]
         requete = afficher_reconception()
         modele = QStandardItemModel(len(requete), len(entetes))
         modele.setHorizontalHeaderLabels(entetes)
@@ -183,7 +230,8 @@ class Onglet_cartes(QWidget):
                 modele.setItem(row, col, QStandardItem(str(val)))
         table.setModel(modele)
         table.resizeColumnsToContents()
-
+        rechercher_proxy(table, self.recherche , colonne=-1)
+        layout.addWidget(menu)
         layout.addWidget(table)
         page.setLayout(layout)
         return page
@@ -199,23 +247,56 @@ class Onglet_cartes(QWidget):
         page.setLayout(layout)
         return page
     def lancer_reconception(self):
-        etudiant_id = self.id_etudiant.text()
-        verification= verification_reconception(etudiant_id)
-        if verification:
-            reponse= QMessageBox.question(self, "Validité","Eligible à la reconception. Voulez-vous reconcevoir ?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-            if reponse == QMessageBox.StandardButton.Yes:
-                reconcevoir()
-                QMessageBox.information(self,"Succès","Reconception réussie! ✅")
-                
+        id_texte = self.id_etudiant.text().strip()
+        if not id_texte:
+            QMessageBox.warning(self,"Erreur","Erreur veillez entrer un ID" )
+            return
+        if not id_texte.isdigit():
+            QMessageBox.critical(self,"Erreur","Vous devez entrer un nombre entier")
+        try:
+            etudiant_id= int(id_texte)
+            if verification_reconception(etudiant_id):
+                reponse =QMessageBox.question(self,"Validité","Etudiant éligible! Voulez-vous reconcevoir ?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+                )
+                if reponse == QMessageBox.StandardButton.Yes:
+                    tentative= verifier_tentative(etudiant_id)
+                    reconcevoir(etudiant_id)
+                    QMessageBox.information(self,"Succès",f"Carte n°{tentative} conçue avec succès!")
+                    self.stack_reconception.removeWidget(self.stack_reconception.widget(0))
+                    self.stack_reconception.insertWidget(0,self.page_reconception_carte())
+                    self.stack_reconception.setCurrentIndex(0)
+                    self.id_etudiant.clear()
+                else:
+                    QMessageBox.information(self,"Annulation","Reconception annulée!")
+                    self.id_etudiant.clear()
             else:
-                QMessageBox.information(self,"Annulation","Reconception annulée ⛔ ")
-        else:
-            QMessageBox.warning(self,"Erreur","❌  Limite atteinte! Pas eligible")
+                QMessageBox.warning(self,"Echec","Etudiant non trouvé ou limite atteinte!")
+                
+        except ValueError:
+            QMessageBox.critical(self,"Erreur","Vous devez entrer un nombre!")
         
-            
-            
-            
+        except Exception as e:
+            QMessageBox.critical(self,"Erreur inattendue", f"Erreur survenue :\n{e}")   
+    def page_dossier_reconception(self):
+        page= QWidget()
+        layout= QVBoxLayout()
+        ouvrir_dossier= QPushButton("📂 Ouvrir Dossier") 
+        ouvrir_dossier.clicked.connect(lambda: self.afficher_dossier("C:\projet\cartes\carte_reconception"))
+        layout.addWidget(ouvrir_dossier)
+        page.setLayout(layout)
+        return page
 
-
+    def afficher_dossier(self,path):
+        if not os.path.exists(path):
+            QMessageBox.warning(self, "Erreur", "❌ Le dossier n'existe pas encore")
+            return
+        if platform.system() == "Windows":
+            os.startfile(os.path.abspath(path))
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open",path])
+        else:
+            subprocess.Popen(["xdg-open",path])
+        
+    

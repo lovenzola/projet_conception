@@ -1,43 +1,41 @@
-from sqlalchemy import create_engine, MetaData, Table,select, func
+from sqlalchemy import create_engine, MetaData, Table, select, func, delete
 from sqlalchemy.exc import SQLAlchemyError
+
 # Connexion à la base de données
-engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
-connection= engine.connect()
+engine = create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
+connection = engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
-#------------------------------------------------------------------------------------------------------------------------
-#                  CONDITION DE LA PHASE DE CONCEPTION
-#------------------------------------------------------------------------------------------------------------------------
+
+# Tables nécessaires
 preconceptions = Table('preconception', metadata, autoload_with=engine, schema='public')
+conception = Table("conception", metadata, autoload_with=engine, schema="public")
+etudiants = Table("etudiants", metadata, autoload_with=engine, schema="public")
+
+# Fonctions d'importation des modèles
+from modeles_carte.modeles import modele_droit, modele_fase, modele_fasi, modele_med
+
+# Fonction : vérifier qu’il y a au moins 10 étudiants
 def verification_conception():
     try:
         comptage = select(func.count()).select_from(preconceptions)
         with engine.connect() as connection:
-            resultat= connection.execute(comptage)
-            nbre_etudiant= resultat.scalar()
-            if nbre_etudiant >= 10:
-                return True
-            else:
-                return False
-    except SQLAlchemyError as e :
-        print("Erreur survenue lors de la verification:",e)
+            resultat = connection.execute(comptage)
+            return resultat.scalar() >= 10
+    except SQLAlchemyError as e:
+        print("❌ Erreur lors de la vérification :", e)
+        return False
 
-#-----------------------------------------------------------------------------------------------------------------------
-#                    FONCTION POUR VIDER LA TABLE PRECONCEPTION
-#-----------------------------------------------------------------------------------------------------------------------
-from sqlalchemy import delete
+# Fonction : vider la table de préconception
 def vider_preconception():
-    requete= delete(preconceptions)
-    with engine.connect() as connection:
-        connection.execute(requete)
-        connection.commit()
-#-------------------------------------------------------------------------------------------------------------------------
-#       FONCTION DE CONCEPTION ET ENREGISTREMENT 
-#------------------------------------------------------------------------------------------------------------------------
-from base_donnees.etudiant import etudiants
-from modeles_carte.modeles import modele_droit,modele_fase,modele_fasi,modele_med
-conception= Table("conception",metadata, autoload_with=engine, schema="public")
-modeles= Table("modeles_cartes", metadata, autoload_with=engine, schema="public")
+    try:
+        with engine.connect() as connection:
+            connection.execute(delete(preconceptions))
+            connection.commit()
+    except SQLAlchemyError as e:
+        print("❌ Erreur lors du nettoyage de la table preconception :", e)
+
+# Fonction : exécuter la conception
 def concevoir():
     try:
         requete = select(
@@ -53,10 +51,13 @@ def concevoir():
         ).join(etudiants, etudiants.c.id == preconceptions.c.id_etudiant)
 
         with engine.connect() as connection:
-            resultat = connection.execute(requete)
+            resultat = connection.execute(requete).fetchall()
+
             for row in resultat:
-                # Choix du modèle
-                prefix = row.matricule[:2]
+                prefix = row.matricule[:2].lower()
+                modele = None
+
+                # Sélection du modèle selon le préfixe
                 if prefix == "si":
                     modele = "modele_fasi"
                     modele_fasi(row)
@@ -70,21 +71,24 @@ def concevoir():
                     modele = "modele_medecine"
                     modele_med(row)
                 elif prefix == "th":
-                    print("Modèle pour théologie en cours de conception")
+                    print(f"ℹ Modèle non disponible pour : {row.matricule}")
                     continue
                 else:
-                    print(f"Matricule invalide : {row.matricule}")
+                    print(f"⚠ Matricule invalide : {row.matricule}")
                     continue
 
-                # Enregistrement dans la table "conception"
+                # Enregistrement dans la table conception
                 connection.execute(
                     conception.insert().values(
-                        etudiant_id =row.id_etudiant,
+                        etudiant_id=row.id_etudiant,
                         nom_modele=modele
                     )
                 )
                 connection.commit()
-            vider_preconception()
-    except Exception as e:
-        print(f"Erreur survenue lors de la conception : {e}")
 
+            # Nettoyage final
+            vider_preconception()
+            print("✅ Conception terminée avec succès.")
+
+    except SQLAlchemyError as e:
+        print(f"❌ Erreur lors de la conception : {e}")

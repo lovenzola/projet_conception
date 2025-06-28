@@ -9,13 +9,12 @@ style= ("""
                 QProgressBar{
                     margin-left: 25px;
                     border-radius: 6px;
-                    border: 1.5px solid #9E9E9E;
                     background-color: #F5F5F5;
                     
                 }
                 QProgressBar::chunk{
                     border-radius: 5px;
-                    background-color: #12131A;
+                    background-color: rgba(0,120,215,0.9);
                 }
                 QLabel#titre{
                     font-style: italic;
@@ -25,15 +24,16 @@ style= ("""
                     margin-left: 55px;
                 }
                 QPushButton{
+                    background-color: rgba(0,120,215,0.7);
                     border: 2px solid white;
                     border-radius: 10px;
                     margin : 10px;
                     margin-left: 133px;
                     font-size : 20px;
+                    font-weight: bold;
                     max-width: 120px;
                     height: 30px;
                     color: #FAFAFA;
-                    
                
                 }
             """)
@@ -44,7 +44,7 @@ class accueil(QMainWindow):
         super().__init__()
         self.resize(1000,600)
         self.setWindowTitle("CARD GENERATOR")
-        self.setStyleSheet("background-color:  #1A1C2C; font-family: sans serif;")
+        self.setStyleSheet("background-color:  #00A1B9; font-family: sans serif;")
 #----------------------------------------------------------------------------------------------------------------------
         self.accueil= QWidget()
         self.accueil.setStyleSheet(style)

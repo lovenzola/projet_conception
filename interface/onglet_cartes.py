@@ -9,13 +9,13 @@ from base_donnees.conception import verification_conception
 from base_donnees.conception import concevoir
 from base_donnees.historique import afficher_conception, afficher_preconception, afficher_reconception
 from PyQt6.QtWidgets import (
-    QWidget, QPushButton, QToolBox, QVBoxLayout, QStackedWidget, QTableView,
+    QWidget, QPushButton, QToolBox, QVBoxLayout, QStackedWidget, QTableView,QHeaderView,
     QHBoxLayout, QLineEdit, QMessageBox, QFormLayout
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 class Onglet_cartes(QWidget):
     def __init__(self):
-        super().__init__()
+        super().__init__(),
         self.resize(1000, 600)
         self.setWindowTitle("CARD GENERATOR - Gestion des cartes")
 
@@ -38,7 +38,7 @@ class Onglet_cartes(QWidget):
         layout_precon= QVBoxLayout()
         self.menu_precon = QWidget()
         menu_layout = QHBoxLayout()
-        self.champ_recherche = QLineEdit()
+        self.champ_recherche = QLineEdit(objectName= "search")
         self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
         menu_layout.addWidget(self.champ_recherche)
         self.menu_precon.setLayout(menu_layout)
@@ -116,6 +116,7 @@ class Onglet_cartes(QWidget):
         self.setLayout(layout_principal)
 
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
+        self.sous_onglets.setCurrentIndex(1)
       
 
     def controle_onglet(self, index):
@@ -137,7 +138,7 @@ class Onglet_cartes(QWidget):
         modele.setHorizontalHeaderLabels(entetes)
         for row, ligne in enumerate(requete):
             for col, val in enumerate(ligne):
-                modele.setItem(row, col, QStandardItem(str(val)))
+                modele.setItem(row, col, QStandardItem(str(val).capitalize()))
         self.table_preconception.setModel(modele)
         self.table_preconception.resizeColumnsToContents()
 
@@ -148,7 +149,7 @@ class Onglet_cartes(QWidget):
         layout = QVBoxLayout()
         menu= QWidget()
         menu_con = QHBoxLayout()
-        self.searcher = QLineEdit()
+        self.searcher = QLineEdit(objectName= "search")
         self.searcher.setPlaceholderText("🔍 Tapez votre recherche")
         menu_con.addWidget(self.searcher)
 
@@ -164,9 +165,10 @@ class Onglet_cartes(QWidget):
         modele.setHorizontalHeaderLabels(entetes)
         for row, ligne in enumerate(requete):
             for col, val in enumerate(ligne):
-                modele.setItem(row, col, QStandardItem(str(val)))
+                modele.setItem(row, col, QStandardItem(str(val).capitalize()))
         table.setModel(modele)
-        table.resizeColumnsToContents()
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        table.setAlternatingRowColors(True)
         rechercher_proxy(table,self.searcher, colonne=-1)
         layout.addWidget(menu)
         layout.addWidget(table)
@@ -209,7 +211,7 @@ class Onglet_cartes(QWidget):
         layout = QVBoxLayout()
         menu= QWidget()
         menu_recon = QHBoxLayout()
-        self.recherche = QLineEdit()
+        self.recherche = QLineEdit(objectName= "search")
         self.recherche .setPlaceholderText("🔍 Tapez votre recherche")
         menu_recon.addWidget(self.recherche )
        
@@ -227,9 +229,10 @@ class Onglet_cartes(QWidget):
         modele.setHorizontalHeaderLabels(entetes)
         for row, ligne in enumerate(requete):
             for col, val in enumerate(ligne):
-                modele.setItem(row, col, QStandardItem(str(val)))
+                modele.setItem(row, col, QStandardItem(str(val).capitalize()))
         table.setModel(modele)
-        table.resizeColumnsToContents()
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        table.setAlternatingRowColors(True)
         rechercher_proxy(table, self.recherche , colonne=-1)
         layout.addWidget(menu)
         layout.addWidget(table)

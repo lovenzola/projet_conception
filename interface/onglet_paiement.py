@@ -5,7 +5,7 @@ from base_donnees.historique import affichage_paiement
 from base_donnees.paiement import save_paiement
 from PyQt6.QtWidgets import (
     QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,
-    QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QDoubleSpinBox
+    QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QDoubleSpinBox,QHeaderView
 )
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
@@ -50,7 +50,7 @@ class Onglet_paiement (QWidget):
         #----------------------------- DEFINITION DU MENU ------------------------------------------------------
         self.menu= QWidget()
         menu = QHBoxLayout()
-        self.champ_recherche= QLineEdit()
+        self.champ_recherche= QLineEdit(objectName= "search")
         self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
         self.champ_suppression= QLineEdit()
         self.champ_suppression.setPlaceholderText("Entrez l'ID")
@@ -76,6 +76,7 @@ class Onglet_paiement (QWidget):
         self.stack.addWidget(page_enregistrement)
         self.stack.addWidget(page_afficher)
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
+        self.sous_onglets.setCurrentIndex(1)
         layout_principal.addWidget(self.sous_onglets,1)
         layout_principal.addWidget(self.stack,4)
         self.setLayout(layout_principal)
@@ -118,11 +119,11 @@ class Onglet_paiement (QWidget):
 
         for row_index, ligne in enumerate(requete):
             for col_index, valeur in enumerate(ligne):
-                item = QStandardItem(str(valeur))
+                item = QStandardItem(str(valeur).capitalize())
                 modele.setItem(row_index,col_index,item)
         self.table.setModel(modele)
-        self.table.resizeColumnsToContents()
-
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.table.setAlternatingRowColors(True)
         rechercher_proxy(self.table, self.champ_recherche,colonne=-1)
 
 

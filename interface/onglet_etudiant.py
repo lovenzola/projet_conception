@@ -4,7 +4,7 @@ from base_donnees.historique import afficher_etudiant
 from base_donnees.etudiant import save_etudiant
 from PyQt6.QtWidgets import (
     QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,
-    QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QDoubleSpinBox
+    QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QHeaderView
 )
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
@@ -29,18 +29,23 @@ class Onglet_etudiant(QWidget):
         layout_enregistrement= QFormLayout()
         self.sexe= QComboBox()
         self.sexe.addItems(["F","H"])
+        self.sexe.setPlaceholderText("Champ Obligatoire")
         self.promotion= QComboBox()
         self.promotion.addItems(["L1 LMD FASI", "L1 LMD FASE","L1 LMD DROIT","L1 LMD THEOLOGIE","G0 MEDECINE"])
+        self.promotion.setPlaceholderText("Champ Obligatoire")
         self.photo_path= QComboBox()
         self.photo_path.addItems(["C:\projet\multimedia\icone_femme_black.jpg", "C:\projet\multimedia\icone_homme_black.jpg"])
+        self.photo_path.setPlaceholderText("Champ Obligatoire")
         self.date_naissance= QLineEdit()
-        self.date_naissance.setPlaceholderText("YYYY-MM-DD")
+        self.date_naissance.setPlaceholderText("Champ Obligatoire")
         self.btn_save= QPushButton("Enregistrer")
         self.btn_save.clicked.connect(self.enregistrer)
         self.nom= QLineEdit()
+        self.nom.setPlaceholderText("Champ Obligatoire")
         self.postnom= QLineEdit()
         self.prenom= QLineEdit()
         self.matricule= QLineEdit()
+        self.matricule.setPlaceholderText("Champ Obligatoire")
         layout_enregistrement.addRow("Nom :",self.nom)
         layout_enregistrement.addRow("Post-nom :",self.postnom)
         layout_enregistrement.addRow("Prenom :",self.prenom)
@@ -59,7 +64,7 @@ class Onglet_etudiant(QWidget):
         #----------------------------- DEFINITION DU MENU ------------------------------------------------------
         self.menu= QWidget()
         menu = QHBoxLayout()
-        self.champ_recherche= QLineEdit()
+        self.champ_recherche= QLineEdit(objectName= "search")
         self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
         self.champ_suppression= QLineEdit()
         self.champ_suppression.setPlaceholderText("Entrez l'ID")
@@ -86,6 +91,7 @@ class Onglet_etudiant(QWidget):
         self.stack.addWidget(page_enregistrement)
         self.stack.addWidget(page_afficher)
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
+        self.sous_onglets.setCurrentIndex(1)
         layout_principal.addWidget(self.sous_onglets,1)
         layout_principal.addWidget(self.stack,4)
         self.setLayout(layout_principal)
@@ -110,31 +116,46 @@ class Onglet_etudiant(QWidget):
         promotion= self.promotion.currentText()
         date_naissance= self.date_naissance.text()
         photo_path= self.photo_path.currentText()
-        message= save_etudiant(
-            nom= nom.lower(),
-            postnom=postnom.lower(),
-            prenom=prenom.lower(),
-            matricule=matricule.lower(),
-            sexe=sexe.lower(),
-            promotion=promotion.lower(),
-            date_naissance=date_naissance.lower(),
-            photo_path=photo_path
-        )
-        QMessageBox.information(self,"SUCCES", message)
-        self.renitialiser()
+        matricule_format= matricule.lower()
+        if nom and matricule and sexe and promotion and date_naissance  and photo_path:
+            if len(matricule) == 8 :
+                if matricule_format[:2] in ["si","ae","dr","th","md"]:
+                    message= save_etudiant(
+                    nom= nom.lower(),
+                    postnom=postnom.lower(),
+                    prenom=prenom.lower(),
+                    matricule=matricule_format,
+                    sexe=sexe.lower(),
+                    promotion=promotion.lower(),
+                    date_naissance=date_naissance.lower(),
+                    photo_path=photo_path
+                    )
+                    QMessageBox.information(self,"SUCCES", message)
+                    self.renitialiser()
+                else:
+                    QMessageBox.warning(self,"Attention","Matricule invalide!")
+                    return
+            else:
+                QMessageBox.warning(self,"Attention","Votre matricule doit comporter 8 caractères!")
+                return
+        else:
+            QMessageBox.warning(self,"Attention","Veuillez remplir les champs obligatoires!!")
+            return
 #---------------------------------------------------------------------------------------------------------------------
     def afficher(self):
-        en_tete= ["ID","Nom","Post-nom","Prenom","Matricule","Promotion","Sexe","Date de naissance","Photo_path"]
+        en_tete= ["ID","Nom","Post-nom","Prenom","Matricule","Promotion","Sexe","Date de naissance","Date Enregistrement","Photo_path"]
         requete= afficher_etudiant()
         modele= QStandardItemModel(len(requete),len(en_tete))
         modele.setHorizontalHeaderLabels(en_tete)
 
         for row_index, ligne in enumerate(requete):
             for col_index, valeur in enumerate(ligne):
-                item = QStandardItem(str(valeur))
+                item = QStandardItem(str(valeur).capitalize())
                 modele.setItem(row_index,col_index,item)
         self.table.setModel(modele)
-        self.table.resizeRowsToContents()
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.table.setAlternatingRowColors(True)
+        
 
         rechercher_proxy(self.table, self.champ_recherche, colonne=-1)
 #--------------------------------------------------------------------------------------------------------------------

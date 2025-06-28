@@ -13,21 +13,22 @@ class Onglet_fichier(QMainWindow):
 
         menu= QWidget()
         layout_menu= QVBoxLayout()
-        stats= QLabel("LES STATISTIQUES")
+        stats= QLabel("LES STATISTIQUES", objectName= "onglet_stats")
         stats.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout_menu.addWidget(stats)
         menu.setLayout(layout_menu)
 
         page_stats= QWidget()
         layout_statistiques= QVBoxLayout()
-        group_stats= QGroupBox("Statistiques")
+        group_stats= QGroupBox("Statistiques", objectName= "group_principal")
+
         layout_stats= QVBoxLayout()
 
-        group_etudiants= QGroupBox("Stats-Etudiants")
-        group_paiements= QGroupBox("Stats-Paiements")
-        group_preconception= QGroupBox("Stats-Preconception")
-        group_conception= QGroupBox("Stats-Conception")
-        group_reconception= QGroupBox("Stats-Reconception")
+        group_etudiants= QGroupBox("Stats-Etudiants", objectName= "sous_group" )
+        group_paiements= QGroupBox("Stats-Paiements", objectName= "sous_group")
+        group_preconception= QGroupBox("Stats-Preconception", objectName= "sous_group")
+        group_conception= QGroupBox("Stats-Conception", objectName= "sous_group")
+        group_reconception= QGroupBox("Stats-Reconception", objectName= "sous_group")
 
         layout_etudiants= QVBoxLayout()
         total_etu= QLabel("Total étudiants enregistrés")

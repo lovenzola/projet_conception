@@ -16,14 +16,14 @@ class connexion(QMainWindow):
         self.setStyleSheet("""
             font-size: 16px;
             font-family: sans serif;
-            background-color: #12131A;
-            color: #E0F7FA;
+            background-color: #00A1B9;
+            color: white;
             """)
         ecran_connexion= QWidget()
         layout_principal= QVBoxLayout()
         layout_principal.setAlignment(Qt.AlignmentFlag.AlignCenter)
         conteneur= QFrame()
-        conteneur.setStyleSheet("""QLineEdit{background-color: #1A1C2C; border: 1px solid #12131A ; border-radius: 7px; margin: 8px; height: 40px;} """)
+        conteneur.setStyleSheet("""QLineEdit{background-color: #F2F7FC;color: black; border: 1px solid #0078D7 ; border-radius: 7px; margin: 8px; height: 40px;} """)
         formulaire= QVBoxLayout()
         self.titre= QLabel("Page connexion")
         self.titre.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -35,7 +35,7 @@ class connexion(QMainWindow):
         self.code.setEchoMode(QLineEdit.EchoMode.Password)
         self.bouton= QPushButton("Se connecter")
         self.bouton.clicked.connect(self.acces)
-        self.bouton.setStyleSheet("font-weight:bold; height: 25px;background-color: #E0F7FA; color:black; border: 1px solid aliceblue; border-radius: 10px; max-width: 170px; margin-left: 100px;")
+        self.bouton.setStyleSheet("font-weight:bold; height: 25px;background-color: #0078D7; color:white; border: 1px solid white; border-radius: 10px; max-width: 170px; margin-left: 100px;")
         formulaire.addWidget(self.titre)
         formulaire.addWidget(self.nom)
         formulaire.addWidget(self.code)

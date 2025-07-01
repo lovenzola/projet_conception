@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton, QLineEdit, QFormLayout, QFrame, QMainWindow, QApplication, QVBoxLayout, QMessageBox
 )
 from PyQt6.QtCore import Qt
-import sys
+
 
 #--------------------------------------------------------------------------------------------------------------------
 class connexion(QMainWindow):

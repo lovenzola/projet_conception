@@ -1,9 +1,9 @@
 from interface.connexion import connexion
 from PyQt6.QtWidgets import (
-    QProgressBar, QLabel, QPushButton, QVBoxLayout, QStatusBar,QWidget, QApplication, QMainWindow
+    QProgressBar, QLabel, QPushButton, QVBoxLayout, QStatusBar,QWidget,QMainWindow
 )
 from PyQt6.QtCore import Qt, QTimer
-import sys
+
 #-------------------------------------------------------------------------------------------------------------------
 #                               LE STYLE A APPLIQUER
 #------------------------------------------------------------------------------------------------------------------
@@ -45,7 +45,6 @@ class accueil(QMainWindow):
     def __init__(self):
         super().__init__()
         self.resize(1000,600)
-        self.setWindowTitle("CARD GENERATOR")
         self.setStyleSheet("background-color:  #00A1B9; font-family: sans serif;")
 
         self.accueil= QWidget()
@@ -75,6 +74,7 @@ class accueil(QMainWindow):
         self.statusBar().addWidget(self.message)
         self.statusBar().showMessage("Chargement de l'application")
 
+        layout.addWidget(self.label)
         layout.addWidget(self.progression)
         layout.addWidget(self.bouton)
         self.accueil.setLayout(layout)
@@ -100,7 +100,7 @@ class accueil(QMainWindow):
             self.bouton.show()
             self.statusBar().setHidden(True)
 #----------------------------------------------------------------------------------------------------------------------
-    # CONNEXION A LA PAGE DE CONNECTION
+    # CONNEXION A LA PAGE DE CONNEXION
     
     def connexion (self):
         self.connecter= connexion()

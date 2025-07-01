@@ -2,6 +2,7 @@ from base_donnees.statistiques import total_paiement, total_conception, total_et
 from PyQt6.QtWidgets import QWidget, QGroupBox,QProgressBar, QLabel, QVBoxLayout, QMainWindow, QHBoxLayout
 from PyQt6.QtCore import Qt
 
+#--------------------------------------------------------------------------------------------------------------
 class Onglet_fichier(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -20,6 +21,7 @@ class Onglet_fichier(QMainWindow):
 
         page_stats= QWidget()
         layout_statistiques= QVBoxLayout()
+
         group_stats= QGroupBox("Statistiques", objectName= "group_principal")
 
         layout_stats= QVBoxLayout()
@@ -93,6 +95,8 @@ class Onglet_fichier(QMainWindow):
         self.setCentralWidget(page)
         self.actualiser()
 
+    # FONCTION ACTUALISANT LES VALEURS DE PROGRESSBARS
+    #-------------------------------------------------
     def actualiser(self):
         total= 100
         total_etu= total_etudiants()
@@ -102,7 +106,6 @@ class Onglet_fichier(QMainWindow):
         total_con = total_conception()
         total_recon= total_reconception()
 
-        
         pour_etudiants= int((total_etu / total)*100) if total_etu else 0
         pour_paiement= int((total_paye / total_etu)*100) if total_paye else 0
         pour_etu_paye= int((total_etu_paye / total_etu)*100) if total_etu_paye else 0

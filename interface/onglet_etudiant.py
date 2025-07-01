@@ -1,15 +1,13 @@
 from interface.fonctions_secon import rechercher_proxy
-from base_donnees.historique import supprimer_etudiant
-from base_donnees.historique import afficher_etudiant
-from base_donnees.etudiant import save_etudiant
+from base_donnees.historique import supprimer_etudiant,afficher_etudiant
+from base_donnees.etudiant import save_etudiant, modifier_info
 from PyQt6.QtWidgets import (
-    QWidget, QApplication, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView, QTabWidget,
-    QMainWindow, QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QHeaderView
+    QWidget, QPushButton, QToolBox, QLabel, QVBoxLayout, QStackedWidget, QTableView,
+    QHBoxLayout, QFormLayout, QLineEdit, QComboBox, QMessageBox,QHeaderView
 )
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
-
-#--------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 class Onglet_etudiant(QWidget):
     def __init__(self):
         super().__init__()
@@ -20,8 +18,10 @@ class Onglet_etudiant(QWidget):
 
         sous_onglet_save= QWidget()
         sous_onglet_show= QWidget()
+        sous_onglet_update= QWidget()
         self.sous_onglets.addItem(sous_onglet_save,"Enregistrer un etudiant")
         self.sous_onglets.addItem(sous_onglet_show,"Liste des etudiants")
+        self.sous_onglets.addItem(sous_onglet_update, "Modifier un enregistrement")
         
 
     # L'EMPILATEUR DES PAGES 
@@ -97,15 +97,35 @@ class Onglet_etudiant(QWidget):
 
         #---------------------------- TABLEAU D'AFFICHAGE -----------------------------------------------------
         self.table= QTableView()
-    #----------------------------------------------------------------------------------------------------------
+
 
         layout_afficher.addWidget(self.menu)
         layout_afficher.addWidget(self.table)
 
         page_afficher.setLayout(layout_afficher)
+    #----------------------------------------------------------------------------------------------------------
+    #                       PAGE DE MODIFICATION DES DONNEES 
+    #----------------------------------------------------------------------------------------------------------
+        page_modification= QWidget()
+        layout_modif= QFormLayout()
+
+        self.id_etudiant= QLineEdit()
+        self.champs_autorises= QComboBox()
+        self.champs_autorises.addItems(["nom","postnom","prenom","sexe","date_naissance","photo_path"])
+        self.champ= QLineEdit()
+        self.modification= QPushButton("Modifier")
+        self.modification.clicked.connect(self.modifier_table)
+
+        layout_modif.addRow("Entrez l'ID :",self.id_etudiant)
+        layout_modif.addRow("Champ à modifier :", self.champs_autorises)
+        layout_modif.addRow("Nouvelle valeur du champ :",self.champ)
+        layout_modif.addWidget(self.modification)
+
+        page_modification.setLayout(layout_modif)
 
         self.stack.addWidget(page_enregistrement)
         self.stack.addWidget(page_afficher)
+        self.stack.addWidget(page_modification)
 
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
         self.sous_onglets.setCurrentIndex(1)
@@ -224,5 +244,26 @@ class Onglet_etudiant(QWidget):
             modele.sort(1,Qt.SortOrder.AscendingOrder)
         elif choix == "Z ➡️ A":
             modele.sort(1,Qt.SortOrder.DescendingOrder)
+#-----------------------------------------------------------------------------------------------------------
+#                        FONCTION POUR MODIFIER LA TABLE
+#-----------------------------------------------------------------------------------------------------------
+    def modifier_table(self):
+        id_etudiant= self.id_etudiant.text()
+        champ= self.champs_autorises.currentText().strip().lower()
+        valeur= self.champ.text().strip().lower()
+
+        if id_etudiant and champ and valeur:
+            if not id_etudiant.isdigit():
+                QMessageBox.warning(self,"Attention", "⛔ Entrez un nombre!")
+                return
+            else:
+                action= modifier_info(id_etudiant, champ, valeur)
+                QMessageBox.information(self,"Succès",action)
+                self.champs_autorises.currentIndex()
+                self.id_etudiant.clear()
+                self.champ.clear()
+        else:
+            QMessageBox.warning(self,"Attention","⛔ Veuillez remplir les champs!")
+            return
         
-    
+

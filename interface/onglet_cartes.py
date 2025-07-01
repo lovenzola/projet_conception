@@ -48,6 +48,7 @@ class Onglet_cartes(QWidget):
         layout_precon.addWidget(self.menu_precon)
         layout_precon.addWidget(self.table_preconception)
         self.page_preconception.setLayout(layout_precon)
+
         # ---------- PAGE CONCEPTION AVEC STACK_CARTES ----------
         self.page_conception = QWidget()
         layout_conception = QVBoxLayout()
@@ -122,7 +123,7 @@ class Onglet_cartes(QWidget):
         for bouton in liste_boutons:
             bouton.setCheckable(True)
             bouton.setAutoExclusive(True)
-
+#----------------------------------------------------------------------------------------------------------------
     def controle_onglet(self, index):
         self.stack_global.setCurrentIndex(index)
         if index == 0:
@@ -136,6 +137,9 @@ class Onglet_cartes(QWidget):
             self.stack_reconception.removeWidget(self.stack_reconception.widget(0))
             self.stack_reconception.insertWidget(0, self.page_reconception_carte())
             self.stack_reconception.setCurrentIndex(0)
+#-------------------------------------------------------------------------------------------------------------
+#                           AFFICHAGE TABLE PRECONCEPTION
+#--------------------------------------------------------------------------------------------------------------
     def affichage_preconception(self):
         entetes = ["ID","Nom", "Post-nom", "ID ETUDIANT", "Statut", "Date"]
         requete = afficher_preconception()
@@ -149,6 +153,11 @@ class Onglet_cartes(QWidget):
 
         rechercher_proxy(self.table_preconception,self.champ_recherche, colonne=-1)
 
+#-------------------------------------------------------------------------------------------------------------
+#                           AFFICHAGE CONCEPTION
+#-------------------------------------------------------------------------------------------------------------
+#      1. Table conception                                            
+#----------------------------------------------------------------------
     def page_affichage_cartes(self):
         page = QWidget()
         layout = QVBoxLayout()
@@ -180,6 +189,8 @@ class Onglet_cartes(QWidget):
         page.setLayout(layout)
         return page
 
+#   2. Dossier des cartes conçues
+#----------------------------------------------------------------------------------------------------------
     def page_dossier(self):
         page = QWidget()
         layout = QVBoxLayout()
@@ -189,6 +200,8 @@ class Onglet_cartes(QWidget):
         page.setLayout(layout)
         return page
 
+#   3. FONCTION POUR LANCER LA CONCEPTION
+#--------------------------------------------------------------------------------------------------------
     def page_conception_carte(self):
         page = QWidget()
         layout = QVBoxLayout()
@@ -210,7 +223,11 @@ class Onglet_cartes(QWidget):
             QMessageBox.warning(self, "Erreur", "❌ Nombre d'étudiants pas encore atteint!")
         page.setLayout(layout)
         return page
-
+#-----------------------------------------------------------------------------------------------------------
+#                                   TABLE RECONCEPTION
+#-----------------------------------------------------------------------------------------------------------
+#   1. Affichage de la table
+#-----------------------------------------------------------------------------------------------------------
     def page_reconception_carte(self):
         page = QWidget()
         layout = QVBoxLayout()
@@ -243,7 +260,9 @@ class Onglet_cartes(QWidget):
         layout.addWidget(table)
         page.setLayout(layout)
         return page
-    
+
+#   2. FONCTION POUR TESTER L'ELIGIBILITE A LA RECONCEPTION
+#-----------------------------------------------------------------------------------------------------------
     def test_reconception(self):
         page= QWidget()
         layout= QFormLayout()
@@ -254,6 +273,9 @@ class Onglet_cartes(QWidget):
         layout.addWidget(bouton_reconcevoir)
         page.setLayout(layout)
         return page
+
+#   3. FONCTION POUR LANCEMENT DE LA RECONCEPTION
+#-----------------------------------------------------------------------------------------------------------
     def lancer_reconception(self):
         id_texte = self.id_etudiant.text().strip()
         if not id_texte:
@@ -287,6 +309,9 @@ class Onglet_cartes(QWidget):
         
         except Exception as e:
             QMessageBox.critical(self,"Erreur inattendue", f"Erreur survenue :\n{e}")   
+
+#       4. FONCTION POUR ACCEDER AU DOSSIER DE CARTES RECCONCUES
+#-----------------------------------------------------------------------------------------------------------
     def page_dossier_reconception(self):
         page= QWidget()
         layout= QVBoxLayout()
@@ -296,6 +321,9 @@ class Onglet_cartes(QWidget):
         page.setLayout(layout)
         return page
 
+#-----------------------------------------------------------------------------------------------------------
+#                   FONCTION POUR OUVRIR LES DOSSIERS
+#-----------------------------------------------------------------------------------------------------------
     def afficher_dossier(self,path):
         if not os.path.exists(path):
             QMessageBox.warning(self, "Erreur", "❌ Le dossier n'existe pas encore")

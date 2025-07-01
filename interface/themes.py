@@ -1,8 +1,10 @@
+#                   DEFINITION DU STYLE DES ONGLETS ET PAGES
+#--------------------------------------------------------------------------------------------------------------
 
 THEME = """
 QWidget {
-    background-color:white;  /* Plus clair que #1A1C2C  #12131A*/
-    color: black;              /* Texte très clair */
+    background-color:white;  
+    color: black;
     font-family: 'Segoe UI', sans-serif;
     font-size: 14px;
 }
@@ -25,6 +27,7 @@ QHeaderView::section {
     padding: 6px;
     border: 1px solid white;
 }
+
 QTabBar::tab {
     background-color:  rgba(0,120,215, 0.75);
     color: white;
@@ -33,7 +36,6 @@ QTabBar::tab {
     border: 1px solid white;
     border-bottom: none;
 }
-
 QTabBar::tab:selected {
     background-color: #F2F7FC;
     color: black;
@@ -64,7 +66,6 @@ QPushButton {
     padding: 6px 12px;
     border-radius: 10px;
 }
-
 QPushButton::pressed{
     background-color: #F2F7FC;
     color: black;
@@ -84,34 +85,26 @@ QLineEdit, QComboBox{
     padding: 4px;
 }
 
-
-
 QScrollBar:vertical {
     background-color:  rgba(0,120,215, 0.75);
     width: 12px;
     margin: 2px;
 }
-
 QScrollBar::handle:vertical {
     background-color: rgba(0,120,215, 0.75);
     min-height: 20px;
     border-radius: 4px;
 }
-
 QScrollBar:horizontal {
     background-color:  rgba(0,120,215, 0.75);
-    min-width: 12px;
+    min-width: 10px;
     margin: 2px;
 }
-
 QScrollBar::handle:horizontal {
     background-color: rgba(0,120,215, 0.75);
-    height: 12px;
+    height: 8px;
     border-radius: 4px;
 }
-
-
-
 
 #group_principal{
     subcontrol-position: top left;

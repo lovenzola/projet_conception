@@ -93,6 +93,7 @@ class Onglet_paiement (QWidget):
     
 
     def enregistrer(self):
+        
         id_etudiant = self.id_etudiant.text().strip()
     
         if not id_etudiant.isdigit():
@@ -104,7 +105,6 @@ class Onglet_paiement (QWidget):
             return
 
         montant = self.montant.value()
-
         message = save_paiement(
             id_etudiant=id_etudiant,
             montant=montant

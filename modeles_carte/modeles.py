@@ -1,6 +1,9 @@
 from datetime import date
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import black, whitesmoke, honeydew, aliceblue, lightsteelblue, thistle, oldlace
+#---------------------------------------------------------------------------------------------------------------
+#                               FONCTION GENERALE DU MODELE DE CARTE
+#---------------------------------------------------------------------------------------------------------------
 def modele_carte(row, fond, couleur_nom):
     nom_fichier = f"C:\projet\cartes\carte_conception\Carte_{row.nom.title()}_{row.matricule.upper()}.pdf"
     carte = canvas.Canvas(nom_fichier, pagesize=(253, 143))
@@ -37,6 +40,10 @@ def modele_carte(row, fond, couleur_nom):
     carte.drawString(5, 10, "CARTE D'ETUDIANT")
     carte.drawString(5,180,f"Généré le: {date.today().strftime('%d/%m/%Y')}")
     carte.save()
+
+#----------------------------------------------------------------------------------------------------------
+#               FONCTIONS DE SPECIFICATIONS PAR FACULTE
+#----------------------------------------------------------------------------------------------------------
 
 def modele_fasi(row):
     modele_carte(row, fond=lightsteelblue, couleur_nom=black)

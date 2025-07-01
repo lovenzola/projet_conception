@@ -1,6 +1,10 @@
 from datetime import date
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import black, whitesmoke, honeydew, aliceblue, lightsteelblue, thistle, oldlace
+
+#-----------------------------------------------------------------------------------------------------------------
+#                       FONCTION GENERALE DU MODELE DE LA CARTE
+#-----------------------------------------------------------------------------------------------------------------
 def modele_carte_reconception(resultat,tentative, fond, couleur_nom):
     nom_fichier = f"C:\projet\cartes\carte_reconception\Carte{tentative}_{resultat.nom.title()}_{resultat.matricule.upper()}.pdf"
     carte = canvas.Canvas(nom_fichier, pagesize=(253, 143))
@@ -38,6 +42,10 @@ def modele_carte_reconception(resultat,tentative, fond, couleur_nom):
     carte.drawString(5,100,f"Généré le: {date.today().strftime('%d/%m/%Y')}")
     carte.save()
 
+#------------------------------------------------------------------------------------------------------------
+#                               FONCTIONS SPECIFIQUES PAR FACULTE
+# 
+#-----------------------------------------------------------------------------------------------------------
 def modele_fasi_reconception(resultat, tentaive):
     modele_carte_reconception(resultat, tentaive,fond=lightsteelblue, couleur_nom=black)
 

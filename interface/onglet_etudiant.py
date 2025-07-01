@@ -9,11 +9,13 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
+#--------------------------------------------------------------------------------------------------------------
 class Onglet_etudiant(QWidget):
     def __init__(self):
         super().__init__()
         layout_principal= QHBoxLayout(self)
-#============ BARRE A GAUCHE CONTENANT LES SOUS-ONGLETS ===================================
+
+    #   UNE BOITE D'ONGLETS A GAUCHE
         self.sous_onglets= QToolBox()
 
         sous_onglet_save= QWidget()
@@ -21,31 +23,37 @@ class Onglet_etudiant(QWidget):
         self.sous_onglets.addItem(sous_onglet_save,"Enregistrer un etudiant")
         self.sous_onglets.addItem(sous_onglet_show,"Liste des etudiants")
         
-#--------------------------------------------------------------------------------------------------------------------
-        # LE CADRE DROIT, L'AFFICHEUR
+
+    # L'EMPILATEUR DES PAGES 
+
         self.stack= QStackedWidget()
-#---------------------------- PAGE ENREGISTRER ----------------------------------------------------------------------
+    #---------------------------- PAGE ENREGISTRER -----------------------------------------
         page_enregistrement= QWidget()
         layout_enregistrement= QFormLayout()
         self.sexe= QComboBox()
         self.sexe.addItems(["F","H"])
-        self.sexe.setPlaceholderText("Champ Obligatoire")
+
         self.promotion= QComboBox()
         self.promotion.addItems(["L1 LMD FASI", "L1 LMD FASE","L1 LMD DROIT","L1 LMD THEOLOGIE","G0 MEDECINE"])
-        self.promotion.setPlaceholderText("Champ Obligatoire")
+    
         self.photo_path= QComboBox()
         self.photo_path.addItems(["C:\projet\multimedia\icone_femme_black.jpg", "C:\projet\multimedia\icone_homme_black.jpg"])
-        self.photo_path.setPlaceholderText("Champ Obligatoire")
+        
         self.date_naissance= QLineEdit()
         self.date_naissance.setPlaceholderText("Champ Obligatoire")
+
         self.btn_save= QPushButton("Enregistrer")
         self.btn_save.clicked.connect(self.enregistrer)
+
         self.nom= QLineEdit()
         self.nom.setPlaceholderText("Champ Obligatoire")
+
         self.postnom= QLineEdit()
         self.prenom= QLineEdit()
+
         self.matricule= QLineEdit()
         self.matricule.setPlaceholderText("Champ Obligatoire")
+
         layout_enregistrement.addRow("Nom :",self.nom)
         layout_enregistrement.addRow("Post-nom :",self.postnom)
         layout_enregistrement.addRow("Prenom :",self.prenom)
@@ -58,30 +66,38 @@ class Onglet_etudiant(QWidget):
 
         page_enregistrement.setLayout(layout_enregistrement)
         
-# ----------------------------------- PAGE AFFICHER --------------------------------------------------------------------
+    # ----------------------------------- PAGE AFFICHER -----------------------------------
         page_afficher = QWidget()
         layout_afficher = QVBoxLayout()
+
         #----------------------------- DEFINITION DU MENU ------------------------------------------------------
         self.menu= QWidget()
+
         menu = QHBoxLayout()
+
         self.champ_recherche= QLineEdit(objectName= "search")
         self.champ_recherche.setPlaceholderText("🔍 Tapez votre recherche")
+
         self.champ_suppression= QLineEdit()
         self.champ_suppression.setPlaceholderText("Entrez l'ID")
+
         self.btn_delete=QPushButton("Supprimer")
         self.btn_delete.clicked.connect(self.delete)
+
         self.filtrer = QComboBox()
         self.filtrer.addItems(["Filtrer...", "A ➡️ Z", "Z ➡️ A"])
         self.filtrer.currentIndexChanged.connect(self.trier_table)
+
         menu.addWidget(self.champ_recherche, 2)
         menu.addWidget(self.champ_suppression,1)
         menu.addWidget(self.btn_delete,1)
         menu.addWidget(self.filtrer,1)
+
         self.menu.setLayout(menu)
 
         #---------------------------- TABLEAU D'AFFICHAGE -----------------------------------------------------
         self.table= QTableView()
-#-----------------------------------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------
 
         layout_afficher.addWidget(self.menu)
         layout_afficher.addWidget(self.table)
@@ -90,13 +106,18 @@ class Onglet_etudiant(QWidget):
 
         self.stack.addWidget(page_enregistrement)
         self.stack.addWidget(page_afficher)
+
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
         self.sous_onglets.setCurrentIndex(1)
+
         layout_principal.addWidget(self.sous_onglets,1)
         layout_principal.addWidget(self.stack,4)
+
         self.setLayout(layout_principal)
 
 #------------------------------------------------------------------------------------------------------------------------
+# FONCTION DE RENITIALISATION APRES L'ENREGISTREMENT
+#-----------------------------------------------------
     def renitialiser(self):
         self.nom.clear()
         self.postnom.clear()
@@ -107,6 +128,8 @@ class Onglet_etudiant(QWidget):
         self.date_naissance.clear()
         self.photo_path.clear()
 #----------------------------------------------------------------------------------------------------------------------
+# FONCTION D'ENREGISTREMENT
+#--------------------------------------------------------
     def enregistrer(self):
         nom= self.nom.text()
         postnom=self.postnom.text()
@@ -142,6 +165,8 @@ class Onglet_etudiant(QWidget):
             QMessageBox.warning(self,"Attention","Veuillez remplir les champs obligatoires!!")
             return
 #---------------------------------------------------------------------------------------------------------------------
+# FONCTION D'AFFICHAGE DES ETUDIANTS DANS LA TABLE 
+#------------------------------------------------------------------
     def afficher(self):
         en_tete= ["ID","Nom","Post-nom","Prenom","Matricule","Promotion","Sexe","Date de naissance","Date Enregistrement","Photo_path"]
         requete= afficher_etudiant()
@@ -159,12 +184,15 @@ class Onglet_etudiant(QWidget):
 
         rechercher_proxy(self.table, self.champ_recherche, colonne=-1)
 #--------------------------------------------------------------------------------------------------------------------
+# FONCTION POUR PASSER D'UNE PAGE A L'AUTRE
+#------------------------------------------------------------------------------
     def controle_onglet(self,index):
         self.stack.setCurrentIndex(index)
         if index == 1:
             self.afficher()            
 #-----------------------------------------------------------------------------------------------------------------------
-
+# FONCTION POUR SUPPRIMER 
+#-----------------------------------------------------
     def delete(self):
         id_texte= self.champ_suppression.text()
         if id_texte:
@@ -182,12 +210,13 @@ class Onglet_etudiant(QWidget):
             else:
                 return
 
-
+#-----------------------------------------------------------------------------------------------
+#   FONCTION TRIER LA TABLE
+#------------------------------------------------------------------------------------------------
     def trier_table(self):
         modele= self.table.model()
         if not isinstance(modele, QSortFilterProxyModel):
             return
-    
 
         choix= self.filtrer.currentText()
 

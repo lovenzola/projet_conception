@@ -3,7 +3,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 # Connexion à la base de données
 engine = create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
-
+#-------------------------------------------------------------------------------------------------------------
+#                       LE TRIGGER PAR LEQUEL EST REMPLI LA TABLE PRECONCEPTION
+#--------------------------------------------------------------------------------------------------------------
 def creer_trigger_preconception():
     try:
         script = """
@@ -79,3 +81,7 @@ def creer_trigger_preconception():
 
     except SQLAlchemyError as e:
         print("❌ Erreur lors de la création du trigger :", e)
+
+#    Après son exécution, la fonction n'a plus besoin d'être appelée 
+#-------------------------------------------------------------------------------------------------------------
+#creer_trigger_preconception()

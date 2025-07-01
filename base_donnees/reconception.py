@@ -6,10 +6,11 @@ connection= engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
 #-----------------------------------------------------------------------------------------------------------------------
-#               FONCTION DE VERIFICATION DE CONCEPTION
+#                       FONCTION DE VERIFICATION DE CONCEPTION
 #----------------------------------------------------------------------------------------------------------------------
 conception= Table('conception',metadata, autoload_with=engine, schema='public')
 reconception = Table('reconception',metadata,autoload_with=engine, schema='public')
+
 def verification_reconception(etudiant_id):
     try:
         with engine.connect() as connection:
@@ -28,7 +29,10 @@ def verification_reconception(etudiant_id):
     except SQLAlchemyError as e :
         print("Erreur survenue lors de l'execution de la requete:",e)
         return False
-    
+
+#--------------------------------------------------------------------------------------------------------------
+#                   FONCTION QUI VERIFIE LES TENTATIVES DE RECONCPETION 
+#--------------------------------------------------------------------------------------------------------------
 def verifier_tentative(etudiant_id):
     try:
         requete= select(func.count()).select_from(reconception).where(reconception.c.etudiant_id == etudiant_id)

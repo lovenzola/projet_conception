@@ -118,6 +118,10 @@ class Onglet_cartes(QWidget):
         self.sous_onglets.currentChanged.connect(self.controle_onglet)
         self.sous_onglets.setCurrentIndex(1)
       
+        liste_boutons= [btn_table, btn_dossier, btn_concevoir, btn_table_reconception, btn_table_dossier, btn_espace_reconception]
+        for bouton in liste_boutons:
+            bouton.setCheckable(True)
+            bouton.setAutoExclusive(True)
 
     def controle_onglet(self, index):
         self.stack_global.setCurrentIndex(index)
@@ -127,6 +131,7 @@ class Onglet_cartes(QWidget):
             self.stack_cartes.removeWidget(self.stack_cartes.widget(0))
             self.stack_cartes.insertWidget(0, self.page_affichage_cartes())
             self.stack_cartes.setCurrentIndex(0)
+
         elif index == 2:
             self.stack_reconception.removeWidget(self.stack_reconception.widget(0))
             self.stack_reconception.insertWidget(0, self.page_reconception_carte())

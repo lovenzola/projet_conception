@@ -74,7 +74,7 @@ class Onglet_fichier(QMainWindow):
         layout_recon.addWidget(total_recon)
         layout_recon.addWidget(self.bar_recon)
         group_reconception.setLayout(layout_recon)
-
+        
         layout_stats.addWidget(group_etudiants)
         layout_stats.addWidget(group_paiements)
         layout_stats.addWidget(group_preconception)
@@ -89,8 +89,10 @@ class Onglet_fichier(QMainWindow):
         layout.addWidget(page_stats, 3)
         page.setLayout(layout)
 
+
         self.setCentralWidget(page)
         self.actualiser()
+
     def actualiser(self):
         total= 100
         total_etu= total_etudiants()

@@ -7,9 +7,9 @@ connection= engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
 
-# ENREGISTREMENTS FAITS
+#                                   ENREGISTREMENTS FAITS
 #-----------------------------------------------------------------------------------------------------------------------------
-# ENREGISTREMENT DES ETUDIANTS
+#                               AFFICHAGE DES ETUDIANTS
 #-----------------------------------------------------------------------------------------------------------------------
 from sqlalchemy import select
 def afficher_etudiant():
@@ -21,9 +21,7 @@ def afficher_etudiant():
     except SQLAlchemyError as e:
         print("Erreur survenue lors de l'affichage: ",e)
 #---------------------------------------------------------------------------------------------------------------------
-#                                           PAIEMENTS EFFECTUES
-#---------------------------------------------------------------------------------------------------------------------
-#                                      HISTORIQUE DE TOUS LES PAIEMENTS
+#                                      AFFICHAGE DE TOUS LES PAIEMENTS
 #---------------------------------------------------------------------------------------------------------------------
 from sqlalchemy import select, join
 from base_donnees.etudiant import etudiants
@@ -45,30 +43,6 @@ def affichage_paiement():
             return resultat.fetchall()
     except SQLAlchemyError as e :
         print("Erreur lors de l'affichage: ", e)
-
-#-------------------------------------------------------------------------------------------------------------------------
-#                                           TOTAL PAYE PAR ETUDIANT
-#-------------------------------------------------------------------------------------------------------------------------
-from sqlalchemy import select, func
-def afficher_paiement_etudiant():
-    try:
-        total= (
-            select(
-                paiements.c.id_etudiant,
-                etudiants.c.nom,
-                etudiants.c.postnom,
-                etudiants.c.prenom,
-                func.sum(paiements.c.montant).label("total_paye")
-            )
-            .join(etudiants, paiements.c.id_etudiant == etudiants.c.id)
-            .group_by(paiements.c.id_etudiant,etudiants.c.nom,etudiants.c.postnom,etudiants.c.prenom)
-            .order_by(paiements.c.id_etudiant))
-        
-        with engine.connect() as connection:
-            resultat= connection.execute(total)
-            return resultat.fetchall()
-    except SQLAlchemyError as e:
-        print("Erreur survenue lors de l'affcihage:",e)
 
 #------------------------------------------------------------------------------------------------------------------
 #                                   AFFICHAGE TABLE PRECONCEPTION
@@ -145,6 +119,9 @@ def supprimer_etudiant(id_etudiant):
             return f'ID {id_etudiant} supprimé avec succès'
         else:
             return f'ID inexistant'
+#----------------------------------------------------------------------------------------------------------------
+#                                   FONCTION SECONDAIRE 
+#-----------------------------------------------------------------------------------------------------------------
 
 def supprimer_paiement(id_etudiant):
     requete_existe= select(paiements).where(paiements.c.id_etudiant == id_etudiant)

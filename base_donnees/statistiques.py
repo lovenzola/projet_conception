@@ -1,26 +1,36 @@
 from sqlalchemy import Table, MetaData, select, func, text, create_engine
-
+#               Connexion à la base
 engine = create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/conception_carte")
 connection = engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
 
+#               Tables nécessaires
 etudiants= Table('etudiants',metadata, autoload_with=engine, schema='public')
 paiements= Table('paiements',metadata, autoload_with=engine, schema='public')
 conception= Table('conception',metadata, autoload_with=engine, schema='public')
 preconception= Table('preconception',metadata, autoload_with=engine, schema='public')
 reconception= Table('reconception',metadata, autoload_with=engine, schema='public')
 
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION DU NOMBRE TOTAL DES ETUDIANTS ENREGISTRES 
+#--------------------------------------------------------------------------------------------------------------------
 def total_etudiants():
     with engine.connect() as connection:
         resultat= connection.execute(select(func.count()).select_from(etudiants))
         return resultat.scalar()
-    
+
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION DU NOMBRE TOTAL DES PAIEMENTS ENREGISTRES 
+#--------------------------------------------------------------------------------------------------------------------
 def total_paiement():
     with engine.connect() as connection:
         resultat= connection.execute(select(func.count()).select_from(paiements))
         return resultat.scalar()
-
+    
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION DU NOMBRE TOTAL DES PAIEMENTS COMPLETS 
+#--------------------------------------------------------------------------------------------------------------------
 def paiement_complet():
     requete= """
     select count(*) from (
@@ -40,16 +50,25 @@ def paiement_complet():
         resultat= connection.execute(text(requete))
         return resultat.scalar()
 
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION DU NOMBRE TOTAL DES CONCEPTIONS ENREGISTRES 
+#--------------------------------------------------------------------------------------------------------------------
 def total_conception():
     with engine.connect() as connection:
         resultat= connection.execute(select(func.count()).select_from(conception))
         return resultat.scalar()
 
+#---------------------------------------------------------------------------------------------------------------
+#                FONCTION DU NOMBRE TOTAL DES ETUDIANTS ENREGISTRES DANS LA TABLE PRECONCEPTION
+#--------------------------------------------------------------------------------------------------------------------
 def total_preconception():
     with engine.connect() as connection:
         resultat= connection.execute(select(func.count()).select_from(preconception))
         return resultat.scalar()
 
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION DU NOMBRE TOTAL DES RECONCEPTION ENREGISTRES 
+#--------------------------------------------------------------------------------------------------------------------
 def total_reconception():
     with engine.connect() as connection:
         resultat= connection.execute(select(func.count()).select_from(reconception))

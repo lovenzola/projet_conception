@@ -1,3 +1,4 @@
+from base_donnees.etudiant import etudiants 
 from sqlalchemy import create_engine, MetaData, Table,  insert, select
 from sqlalchemy.exc import SQLAlchemyError
 # Connexion à la base de données
@@ -5,20 +6,22 @@ engine= create_engine("postgresql+psycopg2://postgres:12345678@localhost:5433/co
 connection= engine.connect()
 metadata = MetaData()
 metadata.reflect(bind=engine)
+
+#------------------------------------------------------------------------------------------------------------
+#              FONCTION DE VERIFICATION DE L'EXISTENCE DE L'ETUDIANT AVANT LE PAIEMENT
+#------------------------------------------------------------------------------------------------------------
 # Accès à la table paiements
 paiements= Table('paiements', metadata, autoload_with=engine, schema='public')
 
-from base_donnees.etudiant import etudiants  # s’il est bien déclaré
-
 def etudiant_existe(id_etudiant):
     try:
-        stmt = select(etudiants.c.id).where(etudiants.c.id == id_etudiant)
+        requete = select(etudiants.c.id).where(etudiants.c.id == id_etudiant)
         with engine.connect() as conn:
-            return conn.execute(stmt).first() is not None
+            return conn.execute(requete).first() is not None
     except Exception:
         return False
 #---------------------------------------------------------------------------------------------------------------------
-# FIXATION DU MAXIMUM DE DE PAIEMENTS PAR ETUDIANT SELON LA FACULTE
+#               FIXATION DU MAXIMUM DE DE PAIEMENTS PAR ETUDIANT SELON LA FACULTE
 #----------------------------------------------------------------------------------------------------------------------
 def frais_maximal(promotion):
     prefixe= promotion.strip().lower()

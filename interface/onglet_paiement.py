@@ -10,8 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
-import sys
-
+#-------------------------------------------------------------------------------------------------------------
 class Onglet_paiement (QWidget):
     def __init__(self):
         super().__init__()
@@ -21,6 +20,7 @@ class Onglet_paiement (QWidget):
      
         page_save= QWidget()
         page_show= QWidget()
+
         self.sous_onglets.addItem(page_save,"Enregistrer un paiement")
         self.sous_onglets.addItem(page_show,"Liste des paiements")
 
@@ -28,6 +28,7 @@ class Onglet_paiement (QWidget):
 
         page_enregistrement= QWidget()
         layout_enregistrement= QFormLayout()
+        
         self.id_etudiant= QLineEdit()
         self.id_etudiant.setPlaceholderText("Nombre uniquement")
         self.montant=QDoubleSpinBox()

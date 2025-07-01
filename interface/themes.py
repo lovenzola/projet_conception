@@ -37,10 +37,11 @@ QTabBar::tab {
 QTabBar::tab:selected {
     background-color: #F2F7FC;
     color: black;
+    border: 0.5px solid rgba(0,120,215, 0.75);
 }
 
 QToolBox::tab {
-    background-color:rgba(255,0,0,0.4);
+    background-color:rgba(255,0,0,0.9) ;
     border: none;
     border-radius: 3px;
     font-style: italic;
@@ -48,7 +49,8 @@ QToolBox::tab {
     color: white;
 }
 QToolBox::tab::selected{
-    background-color: rgba(255,0,0,0.9) ;
+    background-color: rgba(255,0,0,0.5);
+    border: 0.5px solid rgba(255,0,0,0.9) ;
     color: white;
     font-weight: bold;
 }
@@ -63,9 +65,17 @@ QPushButton {
     border-radius: 10px;
 }
 
-QPushButton:hover {
-    background-color: background-color:rgba(255,0,0,0.4);
+QPushButton::pressed{
+    background-color: #F2F7FC;
+    color: black;
+    border: 0.5px solid rgba(0,120,215, 0.75);
 }
+QPushButton:checked{
+    background-color: #F2F7FC;
+    color: black;
+    border: 0.5px solid rgba(0,120,215, 0.75);
+}
+
 
 QLineEdit, QComboBox{
     color: black;
@@ -88,12 +98,26 @@ QScrollBar::handle:vertical {
     border-radius: 4px;
 }
 
+QScrollBar:horizontal {
+    background-color:  rgba(0,120,215, 0.75);
+    min-width: 12px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: rgba(0,120,215, 0.75);
+    height: 12px;
+    border-radius: 4px;
+}
+
+
+
+
 #group_principal{
     subcontrol-position: top left;
     font-size: 18px;
     font-weight:bold;
 }
-
 #sous_group{
     subcontrol-position: top center;
     font-weight:bold;

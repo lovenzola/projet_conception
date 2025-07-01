@@ -11,7 +11,7 @@ metadata.reflect(bind=engine)
 # Accès à la table etudiants
 etudiants= Table('etudiants', metadata, autoload_with=engine, schema='public')
 #-------------------------------------------------------------------------------------------------------------------
-# Fonction enregistrement des etudiants
+#                   Fonction enregistrement des etudiants
 #-------------------------------------------------------------------------------------------------------------------
 def save_etudiant(nom,postnom,prenom,matricule,promotion,sexe, date_naissance,photo_path):
     try:

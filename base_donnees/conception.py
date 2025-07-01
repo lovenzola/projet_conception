@@ -15,7 +15,9 @@ etudiants = Table("etudiants", metadata, autoload_with=engine, schema="public")
 # Fonctions d'importation des modèles
 from modeles_carte.modeles import modele_droit, modele_fase, modele_fasi, modele_med
 
-# Fonction : vérifier qu’il y a au moins 10 étudiants
+#----------------------------------------------------------------------------------------------------------------
+#               FONCTION DE VERIFICATION SI IL Y A 10 ETUDIANTS A PAIEMENT COMPLET
+#----------------------------------------------------------------------------------------------------------------
 def verification_conception():
     try:
         comptage = select(func.count()).select_from(preconceptions)
@@ -26,7 +28,9 @@ def verification_conception():
         print("❌ Erreur lors de la vérification :", e)
         return False
 
-# Fonction : vider la table de préconception
+# ----------------------------------------------------------------------------------------------------------------
+#                           FONCTION POUR VIDER LA TABLE PRECONCEPTION
+#-----------------------------------------------------------------------------------------------------------------
 def vider_preconception():
     try:
         with engine.connect() as connection:
@@ -35,7 +39,9 @@ def vider_preconception():
     except SQLAlchemyError as e:
         print("❌ Erreur lors du nettoyage de la table preconception :", e)
 
-# Fonction : exécuter la conception
+#---------------------------------------------------------------------------------------------------------------
+#                       FONCTION POUR LANCER LA CONCEPTION
+#---------------------------------------------------------------------------------------------------------------
 def concevoir():
     try:
         requete = select(
@@ -86,7 +92,6 @@ def concevoir():
                 )
                 connection.commit()
 
-            # Nettoyage final
             vider_preconception()
             print("✅ Conception terminée avec succès.")
 

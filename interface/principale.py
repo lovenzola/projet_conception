@@ -2,10 +2,8 @@ from interface.onglet_etudiant import Onglet_etudiant
 from interface.onglet_paiement import Onglet_paiement
 from interface.onglet_cartes import Onglet_cartes
 from interface.onglet_stats import Onglet_fichier
-from interface.onglet_parametres import Onglet_parametres
 from interface.themes import THEME
-from PyQt6.QtWidgets import QWidget,QApplication, QVBoxLayout, QTabWidget, QMainWindow, QMessageBox, QLabel, QProgressBar
-from PyQt6.QtCore import Qt,QTimer
+from PyQt6.QtWidgets import QWidget,QLabel,QApplication, QVBoxLayout, QTabWidget, QMainWindow, QMessageBox
 class Principale(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -17,22 +15,43 @@ class Principale(QMainWindow):
         self.ecran= QTabWidget()
         
 #---------------------------------------------------------------------------------------------------------------------
-    
+        self.deconnexion= QWidget()
+        self.layout_deconnexion= QVBoxLayout()
+        self.layout_deconnexion.addWidget(QLabel("Deconnexion"))
+
+
+
 
         self.ecran.addTab(Onglet_fichier(),"Statistiques")
         self.ecran.addTab(Onglet_etudiant(),"Etudiants")
         self.ecran.addTab(Onglet_paiement(),"Paiements")
         self.ecran.addTab(Onglet_cartes(),"Gestion Cartes")
-        
-        self.onglet_params= Onglet_parametres()
-        self.onglet_params.quitter.connect(self.quitter_app)
-        self.ecran.addTab(self.onglet_params,"Paramètres")
+        self.ecran.addTab(self.deconnexion,"Deconnexion")
+        self.ecran.currentChanged.connect(self.controle_onglet)
         self.ecran.setCurrentIndex(1)
+
+        
         layout.addWidget(self.ecran)
+        layout.addStretch()
         conteneur.setLayout(layout)
         self.setCentralWidget(conteneur)
     
-    def quitter_app(self):
-        self.close()
-        QApplication.quit()
+    def controle_onglet(self,index):
+        if index==4:
+            self.deconnecter()
+
+    def deconnecter(self):
+        reponse = QMessageBox.question(
+            self,"Deconnexion","Voulez-vous vraiment quitter l'application?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if reponse == QMessageBox.StandardButton.Yes:
+            self.close()
+            QApplication.quit()
+        else:
+            self.ecran.setCurrentIndex(1)
+
+
+
+        
     

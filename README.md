@@ -66,7 +66,7 @@ projet/
 
 ---
 
-## 🛠 Technologies utilisées
+##  Technologies utilisées
 
 - Python 3.13.3
 - PyQt6
@@ -78,7 +78,7 @@ projet/
 
 ---
 
-## 🚀 Installation et exécution
+##  Installation et exécution
 
 1. *Cloner le projet*
    ```bash
